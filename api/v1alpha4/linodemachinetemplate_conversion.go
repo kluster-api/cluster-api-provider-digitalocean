@@ -16,8 +16,8 @@ limitations under the License.
 
 package v1alpha4
 
-// Hub marks DOMachineTemplate as a conversion hub.
-func (*DOMachineTemplate) Hub() {}
+// Hub marks LinodeMachineTemplate as a conversion hub.
+func (*LinodeMachineTemplate) Hub() {}
 
-// Hub marks DOMachineTemplateList as a conversion hub.
-func (*DOMachineTemplateList) Hub() {}
+// Hub marks LinodeMachineTemplateList as a conversion hub.
+func (*LinodeMachineTemplateList) Hub() {}

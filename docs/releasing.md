@@ -6,10 +6,10 @@
 
 ```shell
 $ git remote -v
-origin	    git@github.com:{YOUR_GITHUB_USERNAME}/cluster-api-provider-digitalocean.git (fetch)
-origin	    git@github.com:{YOUR_GITHUB_USERNAME}/cluster-api-provider-digitalocean.git (push)
-upstream	git@github.com:kubernetes-sigs/cluster-api-provider-digitalocean.git (fetch)
-upstream	git@github.com:kubernetes-sigs/cluster-api-provider-digitalocean.git (push)
+origin	    git@github.com:{YOUR_GITHUB_USERNAME}/cluster-api-provider-linode.git (fetch)
+origin	    git@github.com:{YOUR_GITHUB_USERNAME}/cluster-api-provider-linode.git (push)
+upstream	git@github.com:kubernetes-sigs/cluster-api-provider-linode.git (fetch)
+upstream	git@github.com:kubernetes-sigs/cluster-api-provider-linode.git (push)
 ```
 
 - Make sure your working tree (this project) is clean from untracked files

@@ -20,32 +20,32 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// DOMachineTemplateSpec defines the desired state of DOMachineTemplate.
-type DOMachineTemplateSpec struct {
-	Template DOMachineTemplateResource `json:"template"`
+// LinodeMachineTemplateSpec defines the desired state of LinodeMachineTemplate.
+type LinodeMachineTemplateSpec struct {
+	Template LinodeMachineTemplateResource `json:"template"`
 }
 
 // +kubebuilder:object:root=true
-// +kubebuilder:resource:path=domachinetemplates,scope=Namespaced,categories=cluster-api
+// +kubebuilder:resource:path=linodemachinetemplates,scope=Namespaced,categories=cluster-api
 // +kubebuilder:storageversion
 
-// DOMachineTemplate is the Schema for the domachinetemplates API.
-type DOMachineTemplate struct {
+// LinodeMachineTemplate is the Schema for the linodemachinetemplates API.
+type LinodeMachineTemplate struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec DOMachineTemplateSpec `json:"spec,omitempty"`
+	Spec LinodeMachineTemplateSpec `json:"spec,omitempty"`
 }
 
 // +kubebuilder:object:root=true
 
-// DOMachineTemplateList contains a list of DOMachineTemplate.
-type DOMachineTemplateList struct {
+// LinodeMachineTemplateList contains a list of LinodeMachineTemplate.
+type LinodeMachineTemplateList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []DOMachineTemplate `json:"items"`
+	Items           []LinodeMachineTemplate `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&DOMachineTemplate{}, &DOMachineTemplateList{})
+	SchemeBuilder.Register(&LinodeMachineTemplate{}, &LinodeMachineTemplateList{})
 }

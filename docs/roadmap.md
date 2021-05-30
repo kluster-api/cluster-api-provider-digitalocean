@@ -1,4 +1,4 @@
-# Cluster API Provider DigitalOcean Roadmap
+# Cluster API Provider Linode Roadmap
 
 This roadmap is a constant work in progress, subject to frequent revision. Dates are approximations.
 

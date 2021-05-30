@@ -16,8 +16,8 @@ limitations under the License.
 
 package v1alpha4
 
-// Hub marks DOMachine as a conversion hub.
-func (*DOMachine) Hub() {}
+// Hub marks LinodeCluster as a conversion hub.
+func (*LinodeCluster) Hub() {}
 
-// Hub marks DOMachineList as a conversion hub.
-func (*DOMachineList) Hub() {}
+// Hub marks LinodeClusterList as a conversion hub.
+func (*LinodeClusterList) Hub() {}

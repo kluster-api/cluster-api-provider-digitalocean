@@ -24,45 +24,45 @@ import (
 type Tags []string
 
 const (
-	// NameDigitalOceanProviderPrefix is the tag prefix for
-	// cluster-api-provider-digitalocean owned components
-	NameDigitalOceanProviderPrefix = "sigs-k8s-io:capdo"
+	// NameLinodeProviderPrefix is the tag prefix for
+	// cluster-api-provider-linode owned components
+	NameLinodeProviderPrefix = "sigs-k8s-io:capln"
 	// APIServerRoleTagValue describes the value for the apiserver role
 	APIServerRoleTagValue = "apiserver"
 	// NodeRoleTagValue describes the value for the node role
 	NodeRoleTagValue = "node"
 )
 
-// ClusterNameTag generates the tag with prefix `NameDigitalOceanProviderPrefix`
-// for resources associated with a cluster. It will generated tag like `sigs-k8s-io:capdo:{clusterName}`.
+// ClusterNameTag generates the tag with prefix `NameLinodeProviderPrefix`
+// for resources associated with a cluster. It will generated tag like `sigs-k8s-io:capln:{clusterName}`.
 func ClusterNameTag(clusterName string) string {
-	return fmt.Sprintf("%s:%s", NameDigitalOceanProviderPrefix, clusterName)
+	return fmt.Sprintf("%s:%s", NameLinodeProviderPrefix, clusterName)
 }
 
-// ClusterNameRoleTag generates the tag with prefix `NameDigitalOceanProviderPrefix` and `RoleValue` as suffix
-// It will generated tag like `sigs-k8s-io:capdo:{clusterName}:{role}`.
+// ClusterNameRoleTag generates the tag with prefix `NameLinodeProviderPrefix` and `RoleValue` as suffix
+// It will generated tag like `sigs-k8s-io:capln:{clusterName}:{role}`.
 func ClusterNameRoleTag(clusterName, role string) string {
-	return fmt.Sprintf("%s:%s:%s", NameDigitalOceanProviderPrefix, clusterName, role)
+	return fmt.Sprintf("%s:%s:%s", NameLinodeProviderPrefix, clusterName, role)
 }
 
-// ClusterNameUIDRoleTag generates the tag with prefix `NameDigitalOceanProviderPrefix` and `RoleValue` as suffix
-// It will generated tag like `sigs-k8s-io:capdo:{clusterName}:{UID}:{role}`.
+// ClusterNameUIDRoleTag generates the tag with prefix `NameLinodeProviderPrefix` and `RoleValue` as suffix
+// It will generated tag like `sigs-k8s-io:capln:{clusterName}:{UID}:{role}`.
 func ClusterNameUIDRoleTag(clusterName, clusterUID, role string) string {
-	return fmt.Sprintf("%s:%s:%s:%s", NameDigitalOceanProviderPrefix, clusterName, clusterUID, role)
+	return fmt.Sprintf("%s:%s:%s:%s", NameLinodeProviderPrefix, clusterName, clusterUID, role)
 }
 
-// NameTagFromName returns DigitalOcean safe name tag from name.
+// NameTagFromName returns Linode safe name tag from name.
 func NameTagFromName(name string) string {
-	return fmt.Sprintf("name:%s", DOSafeName(name))
+	return fmt.Sprintf("name:%s", LinodeSafeName(name))
 }
 
-// BuildTagParams is used to build tags around an DigitalOcean resource.
+// BuildTagParams is used to build tags around an Linode resource.
 type BuildTagParams struct {
 	// ClusterName is the cluster associated with the resource.
 	ClusterName string
 	// ClusterUID is the cluster uid from clusters.cluster.x-k8s.io uid
 	ClusterUID string
-	// Name is the name of the resource, it's applied as the tag "name" on DigitalOcean.
+	// Name is the name of the resource, it's applied as the tag "name" on Linode.
 	Name string
 	// Role is the role associated to the resource.
 	Role string

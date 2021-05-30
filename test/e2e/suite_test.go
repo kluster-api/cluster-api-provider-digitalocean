@@ -34,7 +34,7 @@ import (
 	"github.com/onsi/ginkgo/reporters"
 	. "github.com/onsi/gomega"
 
-	"sigs.k8s.io/cluster-api-provider-digitalocean/api/v1alpha4"
+	"sigs.k8s.io/cluster-api-provider-linode/api/v1alpha4"
 
 	"k8s.io/apimachinery/pkg/runtime"
 
@@ -92,7 +92,7 @@ func TestE2E(t *testing.T) {
 	junitPath := path.Join(artifactFolder, fmt.Sprintf("junit.e2e_suite.%d.xml", config.GinkgoConfig.ParallelNode))
 	junitReporter := reporters.NewJUnitReporter(junitPath)
 
-	RunSpecsWithDefaultAndCustomReporters(t, "capdo-e2e", []Reporter{junitReporter})
+	RunSpecsWithDefaultAndCustomReporters(t, "capln-e2e", []Reporter{junitReporter})
 }
 
 // Using a SynchronizedBeforeSuite for controlling how to create resources shared across ParallelNodes (~ginkgo threads).
@@ -116,9 +116,9 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	bootstrapClusterProvider, bootstrapClusterProxy = setupBootstrapCluster(e2eConfig, scheme, useExistingCluster)
 
 	// envsubst the credentials
-	credentials := os.Getenv("DIGITALOCEAN_ACCESS_TOKEN")
+	credentials := os.Getenv("LINODE_CLI_TOKEN")
 	b64credentials := base64.StdEncoding.EncodeToString([]byte(credentials))
-	os.Setenv("DO_B64ENCODED_CREDENTIALS", b64credentials)
+	os.Setenv("LINODE_B64ENCODED_CREDENTIALS", b64credentials)
 
 	By("Initializing the bootstrap cluster")
 	initBootstrapCluster(bootstrapClusterProxy, e2eConfig, clusterctlConfigPath, artifactFolder)

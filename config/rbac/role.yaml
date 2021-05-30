@@ -46,7 +46,7 @@ rules:
 - apiGroups:
   - infrastructure.cluster.x-k8s.io
   resources:
-  - doclusters
+  - linodeclusters
   verbs:
   - create
   - delete
@@ -58,7 +58,7 @@ rules:
 - apiGroups:
   - infrastructure.cluster.x-k8s.io
   resources:
-  - doclusters/status
+  - linodeclusters/status
   verbs:
   - get
   - patch
@@ -66,7 +66,7 @@ rules:
 - apiGroups:
   - infrastructure.cluster.x-k8s.io
   resources:
-  - domachines
+  - linodemachines
   verbs:
   - create
   - delete
@@ -78,7 +78,7 @@ rules:
 - apiGroups:
   - infrastructure.cluster.x-k8s.io
   resources:
-  - domachines/status
+  - linodemachines/status
   verbs:
   - get
   - patch

@@ -13,7 +13,7 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-Read the following guide if you're interested in contributing to cluster-api-provider-digitalocean.
+Read the following guide if you're interested in contributing to cluster-api-provider-linode.
 
 ## Contributor License Agreements
 
@@ -29,7 +29,7 @@ repository.
 
 If you're new to the project and want to help, but don't know where to start, we have a semi-curated list of issues that
 should not need deep knowledge of the system. [Have a look and see if anything sounds
-interesting](https://github.com/kubernetes-sigs/cluster-api-provider-digitalocean/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
+interesting](https://github.com/kubernetes-sigs/cluster-api-provider-linode/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
 Alternatively, read some of the docs on other controllers and try to write your own, file and fix any/all issues that
 come up, including gaps in documentation!
 

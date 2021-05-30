@@ -27,7 +27,7 @@ import (
 
 // CleanDOResources clean any resource leftover from the tests.
 func CleanDOResources(clusterName string) error {
-	token := os.Getenv("DIGITALOCEAN_ACCESS_TOKEN")
+	token := os.Getenv("LINODE_CLI_TOKEN")
 	if token == "" {
 		return errors.New("missing DO token")
 	}

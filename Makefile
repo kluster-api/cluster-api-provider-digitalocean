@@ -43,13 +43,13 @@ KUBETEST_CONF_PATH ?= $(abspath $(E2E_DATA_DIR)/kubetest/conformance.yaml)
 GO_INSTALL = ./scripts/go_install.sh
 
 # Set --output-base for conversion-gen if we are not within GOPATH
-ifneq ($(abspath $(REPO_ROOT)),$(shell go env GOPATH)/src/sigs.k8s.io/cluster-api-provider-digitalocean)
+ifneq ($(abspath $(REPO_ROOT)),$(shell go env GOPATH)/src/sigs.k8s.io/cluster-api-provider-linode)
 	GEN_OUTPUT_BASE := --output-base=$(REPO_ROOT)
 endif
 
 # Files
-E2E_CONF_FILE ?= $(REPO_ROOT)/test/e2e/config/digitalocean-dev.yaml
-E2E_CONF_FILE_ENVSUBST := $(ROOT_DIR)/test/e2e/config/digitalocean-dev-envsubst.yaml
+E2E_CONF_FILE ?= $(REPO_ROOT)/test/e2e/config/linode-dev.yaml
+E2E_CONF_FILE_ENVSUBST := $(ROOT_DIR)/test/e2e/config/linode-dev-envsubst.yaml
 
 # Define Docker related variables. Releases should modify and double check these vars.
 REGISTRY ?= gcr.io/$(shell gcloud config get-value project)
@@ -81,7 +81,7 @@ PULL_POLICY ?= Always
 DOCKER_BUILDKIT ?= 0
 export DOCKER_BUILDKIT
 
-KIND_CLUSTER_NAME ?= capdo
+KIND_CLUSTER_NAME ?= capln
 
 ## --------------------------------------
 ##@ Help
@@ -159,7 +159,7 @@ test-conformance: e2e-image $(ENVSUBST) $(GINKGO) $(KIND) $(KUSTOMIZE) ## Run co
 
 .PHONY: e2e-image
 e2e-image:
-	docker build --build-arg ldflags="$(LDFLAGS)" --tag="gcr.io/k8s-staging-cluster-api/capdo-manager:e2e" .
+	docker build --build-arg ldflags="$(LDFLAGS)" --tag="gcr.io/k8s-staging-cluster-api/capln-manager:e2e" .
 
 
 .PHONY: binaries
@@ -370,7 +370,7 @@ release-notes: $(RELEASE_NOTES)
 ## --------------------------------------
 
 .PHONY: create-cluster
-create-cluster: $(CLUSTERCTL) ## Create a development Kubernetes cluster on DigitalOcean using examples
+create-cluster: $(CLUSTERCTL) ## Create a development Kubernetes cluster on Linode using examples
 	$(CLUSTERCTL) \
 	create cluster -v 4 \
 	--bootstrap-flags="name=clusterapi" \
@@ -385,7 +385,7 @@ create-cluster: $(CLUSTERCTL) ## Create a development Kubernetes cluster on Digi
 CLUSTER_NAME ?= test1
 
 .PHONY: create-cluster-management
-create-cluster-management: $(CLUSTERCTL) ## Create a development Kubernetes cluster on DigitalOcean in a KIND management cluster.
+create-cluster-management: $(CLUSTERCTL) ## Create a development Kubernetes cluster on Linode in a KIND management cluster.
 	## Create kind management cluster.
 	$(MAKE) kind-create
 
@@ -438,15 +438,15 @@ delete-workload-cluster: $(CLUSTERCTL) ## Deletes the development Kubernetes Clu
 	-p ./examples/_out/provider-components.yaml \
 
 .PHONY: kind-create
-kind-create: ## create capdo kind cluster if needed
+kind-create: ## create capln kind cluster if needed
 	./scripts/kind-with-registry.sh
 
 .PHONY: delete-cluster
-delete-cluster: delete-workload-cluster  ## Deletes the example kind cluster "capdo"
+delete-cluster: delete-workload-cluster  ## Deletes the example kind cluster "capln"
 	kind delete cluster --name=$(KIND_CLUSTER_NAME)
 
 .PHONY: kind-reset
-kind-reset: ## Destroys the "capdo" kind cluster.
+kind-reset: ## Destroys the "capln" kind cluster.
 	kind delete cluster --name=$(KIND_CLUSTER_NAME) || true
 
 ## --------------------------------------
@@ -508,6 +508,6 @@ clean-examples: ## Remove all the temporary files generated in the examples fold
 	rm -f examples/core-components/*-components.yaml
 	rm -f examples/provider-components/provider-components-*.yaml
 
-.PHONY: do-janitor
-do-janitor: ## Cleanup old resources in the DO account
-	go run hack/do-janitor/do-janitor.go
+.PHONY: linode-janitor
+linode-janitor: ## Cleanup old resources in the DO account
+	go run hack/linode-janitor/linode-janitor.go

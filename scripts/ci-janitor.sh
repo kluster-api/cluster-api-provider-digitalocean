@@ -28,5 +28,5 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
 # shellcheck source=../hack/ensure-go.sh
 source "${REPO_ROOT}/hack/ensure-go.sh"
 
-make do-janitor
+make linode-janitor
 test_status="${?}"

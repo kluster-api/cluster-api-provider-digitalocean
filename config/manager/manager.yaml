@@ -5,16 +5,16 @@ metadata:
   name: controller-manager
   namespace: system
   labels:
-    control-plane: capdo-controller-manager
+    control-plane: capln-controller-manager
 spec:
   selector:
     matchLabels:
-      control-plane: capdo-controller-manager
+      control-plane: capln-controller-manager
   replicas: 1
   template:
     metadata:
       labels:
-        control-plane: capdo-controller-manager
+        control-plane: capln-controller-manager
     spec:
       serviceAccountName: manager
       containers:

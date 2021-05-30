@@ -31,7 +31,7 @@ verify_doctl_version() {
       if ! [ -d "${GOPATH_BIN}" ]; then
         mkdir -p "${GOPATH_BIN}"
       fi
-      curl -sL https://github.com/digitalocean/doctl/releases/download/v${MINIMUM_DOCTL_VERSION}/doctl-${MINIMUM_DOCTL_VERSION}-linux-amd64.tar.gz | tar -C "${GOPATH_BIN}" -xzv
+      curl -sL https://github.com/linode/doctl/releases/download/v${MINIMUM_DOCTL_VERSION}/doctl-${MINIMUM_DOCTL_VERSION}-linux-amd64.tar.gz | tar -C "${GOPATH_BIN}" -xzv
       chmod +x "${GOPATH_BIN}/doctl"
     else
       echo "Missing required binary in path: doctl"

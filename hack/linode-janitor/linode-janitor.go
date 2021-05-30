@@ -29,7 +29,7 @@ const timeToCleanInHours = 12
 
 func main() {
 	log.Println("Starting DO Janitor")
-	token := os.Getenv("DIGITALOCEAN_ACCESS_TOKEN")
+	token := os.Getenv("LINODE_CLI_TOKEN")
 	if token == "" {
 		log.Fatal("missing DO token")
 	}

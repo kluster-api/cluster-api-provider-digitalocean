@@ -21,7 +21,7 @@ import (
 
 	"github.com/digitalocean/godo"
 
-	infrav1 "sigs.k8s.io/cluster-api-provider-digitalocean/api/v1alpha4"
+	infrav1 "sigs.k8s.io/cluster-api-provider-linode/api/v1alpha4"
 )
 
 func (s *Service) GetLoadBalancer(id string) (*godo.LoadBalancer, error) {
@@ -40,8 +40,8 @@ func (s *Service) GetLoadBalancer(id string) (*godo.LoadBalancer, error) {
 	return lb, nil
 }
 
-func (s *Service) CreateLoadBalancer(spec *infrav1.DOLoadBalancer) (*godo.LoadBalancer, error) {
-	clusterName := infrav1.DOSafeName(s.scope.Name())
+func (s *Service) CreateLoadBalancer(spec *infrav1.LinodeLoadBalancer) (*godo.LoadBalancer, error) {
+	clusterName := infrav1.LinodeSafeName(s.scope.Name())
 	name := clusterName + "-" + infrav1.APIServerRoleTagValue + "-" + s.scope.UID()
 	request := &godo.LoadBalancerRequest{
 		Name:      name,

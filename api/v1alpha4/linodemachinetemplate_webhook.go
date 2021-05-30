@@ -29,22 +29,22 @@ import (
 )
 
 // log is for logging in this package.
-var _ = logf.Log.WithName("domachinetemplate-resource")
+var _ = logf.Log.WithName("linodemachinetemplate-resource")
 
-// +kubebuilder:webhook:verbs=create;update,path=/validate-infrastructure-cluster-x-k8s-io-v1alpha4-domachinetemplate,mutating=false,failurePolicy=fail,matchPolicy=Equivalent,groups=infrastructure.cluster.x-k8s.io,resources=domachinetemplates,versions=v1alpha4,name=validation.domachinetemplate.infrastructure.x-k8s.io,sideEffects=None,admissionReviewVersions=v1beta1
+// +kubebuilder:webhook:verbs=create;update,path=/validate-infrastructure-cluster-x-k8s-io-v1alpha4-linodemachinetemplate,mutating=false,failurePolicy=fail,matchPolicy=Equivalent,groups=infrastructure.cluster.x-k8s.io,resources=linodemachinetemplates,versions=v1alpha4,name=validation.linodemachinetemplate.infrastructure.x-k8s.io,sideEffects=None,admissionReviewVersions=v1beta1
 
 var (
-	_ webhook.Validator = &DOMachineTemplate{}
+	_ webhook.Validator = &LinodeMachineTemplate{}
 )
 
-func (r *DOMachineTemplate) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func (r *LinodeMachineTemplate) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(r).
 		Complete()
 }
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *DOMachineTemplate) ValidateCreate() error {
+func (r *LinodeMachineTemplate) ValidateCreate() error {
 	var allErrs field.ErrorList
 	spec := r.Spec.Template.Spec
 
@@ -60,12 +60,12 @@ func (r *DOMachineTemplate) ValidateCreate() error {
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *DOMachineTemplate) ValidateUpdate(old runtime.Object) error {
+func (r *LinodeMachineTemplate) ValidateUpdate(old runtime.Object) error {
 	var allErrs field.ErrorList
 
-	oldDOMachineTemplate := old.(*DOMachineTemplate)
-	if !reflect.DeepEqual(r.Spec, oldDOMachineTemplate.Spec) {
-		allErrs = append(allErrs, field.Forbidden(field.NewPath("spec"), "DOMachineTemplateSpec is immutable"))
+	oldLinodeMachineTemplate := old.(*LinodeMachineTemplate)
+	if !reflect.DeepEqual(r.Spec, oldLinodeMachineTemplate.Spec) {
+		allErrs = append(allErrs, field.Forbidden(field.NewPath("spec"), "LinodeMachineTemplateSpec is immutable"))
 	}
 
 	if len(allErrs) == 0 {
@@ -76,6 +76,6 @@ func (r *DOMachineTemplate) ValidateUpdate(old runtime.Object) error {
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *DOMachineTemplate) ValidateDelete() error {
+func (r *LinodeMachineTemplate) ValidateDelete() error {
 	return nil
 }

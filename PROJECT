@@ -1,13 +1,13 @@
 version: "3"
 domain: cluster.x-k8s.io
-repo: sigs.k8s.io/cluster-api-provider-digitalocean
+repo: sigs.k8s.io/cluster-api-provider-linode
 resources:
 - group: infrastructure
-  kind: DOCluster
+  kind: LinodeCluster
   version: v1alpha4
 - group: infrastructure
-  kind: DOMachine
+  kind: LinodeMachine
   version: v1alpha4
 - group: infrastructure
-  kind: DOMachineTemplate
+  kind: LinodeMachineTemplate
   version: v1alpha4

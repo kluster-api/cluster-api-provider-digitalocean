@@ -19,7 +19,7 @@ package computes
 import (
 	"context"
 
-	"sigs.k8s.io/cluster-api-provider-digitalocean/cloud/scope"
+	"sigs.k8s.io/cluster-api-provider-linode/cloud/scope"
 )
 
 // Service holds a collection of interfaces.
@@ -28,7 +28,7 @@ type Service struct {
 	ctx   context.Context
 }
 
-// NewService returns a new service given the digitalocean api client.
+// NewService returns a new service given the linode api client.
 func NewService(ctx context.Context, scope *scope.ClusterScope) *Service {
 	return &Service{
 		scope: scope,

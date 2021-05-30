@@ -53,7 +53,7 @@ var _ = Describe("Workload cluster creation", func() {
 
 		Expect(e2eConfig.Variables).To(HaveKey(KubernetesVersion))
 
-		clusterName = fmt.Sprintf("capdo-e2e-%s", util.RandomString(6))
+		clusterName = fmt.Sprintf("capln-e2e-%s", util.RandomString(6))
 
 		// Setup a Namespace where to host objects for this spec and create a watcher for the namespace events.
 		namespace, cancelWatches = setupSpecNamespace(ctx, specName, bootstrapClusterProxy, artifactFolder)

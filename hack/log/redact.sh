@@ -22,10 +22,10 @@ echo "================ REDACTING LOGS ================"
 
 log_files=( $(find "${ARTIFACTS:-${PWD}/_artifacts}" -type f) )
 redact_vars=(
-    "${DIGITALOCEAN_ACCESS_TOKEN:-}"
-    "${DO_B64ENCODED_CREDENTIALS:-}"
+    "${LINODE_CLI_TOKEN:-}"
+    "${LINODE_B64ENCODED_CREDENTIALS:-}"
 
-    "$(echo -n "${DIGITALOCEAN_ACCESS_TOKEN:-}" | base64 | tr -d '\n')"
+    "$(echo -n "${LINODE_CLI_TOKEN:-}" | base64 | tr -d '\n')"
 )
 
 for log_file in "${log_files[@]}"; do

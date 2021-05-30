@@ -22,7 +22,7 @@ import (
 	"testing"
 
 	"github.com/miekg/dns"
-	"sigs.k8s.io/cluster-api-provider-digitalocean/util/dns/resolver"
+	"sigs.k8s.io/cluster-api-provider-linode/util/dns/resolver"
 )
 
 func newDNSTypeSOAMsg(name, ns string) *dns.Msg {

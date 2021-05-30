@@ -23,10 +23,10 @@ import (
 
 	"github.com/pkg/errors"
 
-	infrav1 "sigs.k8s.io/cluster-api-provider-digitalocean/api/v1alpha4"
-	"sigs.k8s.io/cluster-api-provider-digitalocean/cloud/scope"
-	"sigs.k8s.io/cluster-api-provider-digitalocean/cloud/services/networking"
-	dnsutil "sigs.k8s.io/cluster-api-provider-digitalocean/util/dns"
+	infrav1 "sigs.k8s.io/cluster-api-provider-linode/api/v1alpha4"
+	"sigs.k8s.io/cluster-api-provider-linode/cloud/scope"
+	"sigs.k8s.io/cluster-api-provider-linode/cloud/services/networking"
+	dnsutil "sigs.k8s.io/cluster-api-provider-linode/util/dns"
 
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -44,15 +44,15 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
-// DOClusterReconciler reconciles a DOCluster object.
-type DOClusterReconciler struct {
+// LinodeClusterReconciler reconciles a LinodeCluster object.
+type LinodeClusterReconciler struct {
 	client.Client
 	Recorder record.EventRecorder
 }
 
-func (r *DOClusterReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (r *LinodeClusterReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	c, err := ctrl.NewControllerManagedBy(mgr).
-		For(&infrav1.DOCluster{}).
+		For(&infrav1.LinodeCluster{}).
 		WithEventFilter(predicates.ResourceNotPaused(ctrl.LoggerFrom(ctx))). // don't queue reconcile if resource is paused
 		Build(r)
 	if err != nil {
@@ -62,7 +62,7 @@ func (r *DOClusterReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Man
 	// Add a watch on clusterv1.Cluster object for unpause notifications.
 	if err = c.Watch(
 		&source.Kind{Type: &clusterv1.Cluster{}},
-		handler.EnqueueRequestsFromMapFunc(util.ClusterToInfrastructureMapFunc(infrav1.GroupVersion.WithKind("DOCluster"))),
+		handler.EnqueueRequestsFromMapFunc(util.ClusterToInfrastructureMapFunc(infrav1.GroupVersion.WithKind("LinodeCluster"))),
 		predicates.ClusterUnpaused(ctrl.LoggerFrom(ctx)),
 	); err != nil {
 		return errors.Wrapf(err, "failed adding a watch for ready clusters")
@@ -71,15 +71,15 @@ func (r *DOClusterReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Man
 	return nil
 }
 
-// +kubebuilder:rbac:groups=infrastructure.cluster.x-k8s.io,resources=doclusters,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=infrastructure.cluster.x-k8s.io,resources=doclusters/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=infrastructure.cluster.x-k8s.io,resources=linodeclusters,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=infrastructure.cluster.x-k8s.io,resources=linodeclusters/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=cluster.x-k8s.io,resources=clusters;clusters/status,verbs=get;list;watch
 
-func (r *DOClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, reterr error) {
+func (r *LinodeClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, reterr error) {
 	log := ctrl.LoggerFrom(ctx)
 
-	docluster := &infrav1.DOCluster{}
-	if err := r.Get(ctx, req.NamespacedName, docluster); err != nil {
+	linodecluster := &infrav1.LinodeCluster{}
+	if err := r.Get(ctx, req.NamespacedName, linodecluster); err != nil {
 		if apierrors.IsNotFound(err) {
 			return reconcile.Result{}, nil
 		}
@@ -87,7 +87,7 @@ func (r *DOClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	}
 
 	// Fetch the Cluster.
-	cluster, err := util.GetOwnerCluster(ctx, r.Client, docluster.ObjectMeta)
+	cluster, err := util.GetOwnerCluster(ctx, r.Client, linodecluster.ObjectMeta)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
@@ -101,7 +101,7 @@ func (r *DOClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		Client:    r.Client,
 		Logger:    log,
 		Cluster:   cluster,
-		DOCluster: docluster,
+		LinodeCluster: linodecluster,
 	})
 	if err != nil {
 		return reconcile.Result{}, errors.Errorf("failed to create scope: %+v", err)
@@ -115,18 +115,18 @@ func (r *DOClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	}()
 
 	// Handle deleted clusters
-	if !docluster.DeletionTimestamp.IsZero() {
+	if !linodecluster.DeletionTimestamp.IsZero() {
 		return r.reconcileDelete(ctx, clusterScope)
 	}
 
 	return r.reconcile(ctx, clusterScope)
 }
 
-func (r *DOClusterReconciler) reconcile(ctx context.Context, clusterScope *scope.ClusterScope) (reconcile.Result, error) {
-	clusterScope.Info("Reconciling DOCluster")
-	docluster := clusterScope.DOCluster
-	// If the DOCluster doesn't have our finalizer, add it.
-	controllerutil.AddFinalizer(docluster, infrav1.ClusterFinalizer)
+func (r *LinodeClusterReconciler) reconcile(ctx context.Context, clusterScope *scope.ClusterScope) (reconcile.Result, error) {
+	clusterScope.Info("Reconciling LinodeCluster")
+	linodecluster := clusterScope.LinodeCluster
+	// If the LinodeCluster doesn't have our finalizer, add it.
+	controllerutil.AddFinalizer(linodecluster, infrav1.ClusterFinalizer)
 
 	networkingsvc := networking.NewService(ctx, clusterScope)
 	apiServerLoadbalancer := clusterScope.APIServerLoadbalancers()
@@ -140,27 +140,27 @@ func (r *DOClusterReconciler) reconcile(ctx context.Context, clusterScope *scope
 	if loadbalancer == nil {
 		loadbalancer, err = networkingsvc.CreateLoadBalancer(apiServerLoadbalancer)
 		if err != nil {
-			return reconcile.Result{}, errors.Wrapf(err, "failed to create load balancers for DOCluster %s/%s", docluster.Namespace, docluster.Name)
+			return reconcile.Result{}, errors.Wrapf(err, "failed to create load balancers for LinodeCluster %s/%s", linodecluster.Namespace, linodecluster.Name)
 		}
 
-		r.Recorder.Eventf(docluster, corev1.EventTypeNormal, "LoadBalancerCreated", "Created new load balancers - %s", loadbalancer.Name)
+		r.Recorder.Eventf(linodecluster, corev1.EventTypeNormal, "LoadBalancerCreated", "Created new load balancers - %s", loadbalancer.Name)
 	}
 
 	apiServerLoadbalancerRef.ResourceID = loadbalancer.ID
-	apiServerLoadbalancerRef.ResourceStatus = infrav1.DOResourceStatus(loadbalancer.Status)
+	apiServerLoadbalancerRef.ResourceStatus = infrav1.LinodeResourceStatus(loadbalancer.Status)
 
-	if apiServerLoadbalancerRef.ResourceStatus != infrav1.DOResourceStatusRunning && loadbalancer.IP == "" {
+	if apiServerLoadbalancerRef.ResourceStatus != infrav1.LinodeResourceStatusRunning && loadbalancer.IP == "" {
 		clusterScope.Info("Waiting on API server Global IP Address")
 		return reconcile.Result{RequeueAfter: 15 * time.Second}, nil
 	}
 
-	r.Recorder.Eventf(docluster, corev1.EventTypeNormal, "LoadBalancerReady", "LoadBalancer got an IP Address - %s", loadbalancer.IP)
+	r.Recorder.Eventf(linodecluster, corev1.EventTypeNormal, "LoadBalancerReady", "LoadBalancer got an IP Address - %s", loadbalancer.IP)
 
 	var controlPlaneEndpoint = loadbalancer.IP
-	if docluster.Spec.ControlPlaneDNS != nil {
+	if linodecluster.Spec.ControlPlaneDNS != nil {
 		clusterScope.Info("Verifying LB DNS Record")
 		// ensure DNS record is created and use it as control plane endpoint
-		recordSpec := docluster.Spec.ControlPlaneDNS
+		recordSpec := linodecluster.Spec.ControlPlaneDNS
 		controlPlaneEndpoint = fmt.Sprintf("%s.%s", recordSpec.Name, recordSpec.Domain)
 		dRecord, err := networkingsvc.GetDomainRecord(
 			recordSpec.Domain,
@@ -194,7 +194,7 @@ func (r *DOClusterReconciler) reconcile(ctx context.Context, clusterScope *scope
 		// cache, so all our retries would fail until the cache TTL is up. This
 		// propagation check works around the DNS cache problem by directly
 		// making DNS queries and not going through system resolvers.
-		if !clusterScope.DOCluster.Status.ControlPlaneDNSRecordReady {
+		if !clusterScope.LinodeCluster.Status.ControlPlaneDNSRecordReady {
 			propagated, err := dnsutil.CheckDNSPropagated(dnsutil.ToFQDN(recordSpec.Name, recordSpec.Domain), loadbalancer.IP)
 			if err != nil {
 				return reconcile.Result{}, errors.Wrap(err, "failed to check DNS propagation")
@@ -205,12 +205,12 @@ func (r *DOClusterReconciler) reconcile(ctx context.Context, clusterScope *scope
 				return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
 			}
 
-			clusterScope.Info("DNS record is propagated - set DOCluster ControlPlaneDNSRecordReady status to ready")
+			clusterScope.Info("DNS record is propagated - set LinodeCluster ControlPlaneDNSRecordReady status to ready")
 			clusterScope.SetControlPlaneDNSRecordReady(true)
 		}
 
 		clusterScope.Info("LB DNS Record is already ready")
-		r.Recorder.Eventf(docluster, corev1.EventTypeNormal, "DomainRecordReady", "DNS Record '%s.%s' with IP '%s'", recordSpec.Name, recordSpec.Domain, loadbalancer.IP)
+		r.Recorder.Eventf(linodecluster, corev1.EventTypeNormal, "DomainRecordReady", "DNS Record '%s.%s' with IP '%s'", recordSpec.Name, recordSpec.Domain, loadbalancer.IP)
 	}
 
 	clusterScope.SetControlPlaneEndpoint(clusterv1.APIEndpoint{
@@ -218,20 +218,20 @@ func (r *DOClusterReconciler) reconcile(ctx context.Context, clusterScope *scope
 		Port: int32(apiServerLoadbalancer.Port),
 	})
 
-	clusterScope.Info("Set DOCluster status to ready")
+	clusterScope.Info("Set LinodeCluster status to ready")
 	clusterScope.SetReady()
-	r.Recorder.Eventf(docluster, corev1.EventTypeNormal, "DOClusterReady", "DOCluster %s - has ready status", clusterScope.Name())
+	r.Recorder.Eventf(linodecluster, corev1.EventTypeNormal, "LinodeClusterReady", "LinodeCluster %s - has ready status", clusterScope.Name())
 	return reconcile.Result{}, nil
 }
 
-func (r *DOClusterReconciler) reconcileDelete(ctx context.Context, clusterScope *scope.ClusterScope) (reconcile.Result, error) {
-	clusterScope.Info("Reconciling delete DOCluster")
-	docluster := clusterScope.DOCluster
+func (r *LinodeClusterReconciler) reconcileDelete(ctx context.Context, clusterScope *scope.ClusterScope) (reconcile.Result, error) {
+	clusterScope.Info("Reconciling delete LinodeCluster")
+	linodecluster := clusterScope.LinodeCluster
 	networkingsvc := networking.NewService(ctx, clusterScope)
 	apiServerLoadbalancerRef := clusterScope.APIServerLoadbalancersRef()
 
-	if docluster.Spec.ControlPlaneDNS != nil {
-		recordSpec := docluster.Spec.ControlPlaneDNS
+	if linodecluster.Spec.ControlPlaneDNS != nil {
+		recordSpec := linodecluster.Spec.ControlPlaneDNS
 		if err := networkingsvc.DeleteDomainRecord(recordSpec.Domain, recordSpec.Name, "A"); err != nil {
 			return reconcile.Result{}, err
 		}
@@ -244,17 +244,17 @@ func (r *DOClusterReconciler) reconcileDelete(ctx context.Context, clusterScope 
 
 	if loadbalancer == nil {
 		clusterScope.V(2).Info("Unable to locate load balancer")
-		r.Recorder.Eventf(docluster, corev1.EventTypeWarning, "NoLoadBalancerFound", "Unable to find matching load balancer")
-		controllerutil.RemoveFinalizer(docluster, infrav1.ClusterFinalizer)
+		r.Recorder.Eventf(linodecluster, corev1.EventTypeWarning, "NoLoadBalancerFound", "Unable to find matching load balancer")
+		controllerutil.RemoveFinalizer(linodecluster, infrav1.ClusterFinalizer)
 		return reconcile.Result{}, nil
 	}
 
 	if err := networkingsvc.DeleteLoadBalancer(loadbalancer.ID); err != nil {
-		return reconcile.Result{}, errors.Wrapf(err, "error deleting load balancer for DOCluster %s/%s", docluster.Namespace, docluster.Name)
+		return reconcile.Result{}, errors.Wrapf(err, "error deleting load balancer for LinodeCluster %s/%s", linodecluster.Namespace, linodecluster.Name)
 	}
 
-	r.Recorder.Eventf(docluster, corev1.EventTypeNormal, "LoadBalancerDeleted", "Deleted an LoadBalancer - %s", loadbalancer.Name)
+	r.Recorder.Eventf(linodecluster, corev1.EventTypeNormal, "LoadBalancerDeleted", "Deleted an LoadBalancer - %s", loadbalancer.Name)
 	// Cluster is deleted so remove the finalizer.
-	controllerutil.RemoveFinalizer(docluster, infrav1.ClusterFinalizer)
+	controllerutil.RemoveFinalizer(linodecluster, infrav1.ClusterFinalizer)
 	return reconcile.Result{}, nil
 }

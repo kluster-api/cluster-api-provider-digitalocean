@@ -24,9 +24,9 @@ import (
 
 	"github.com/pkg/errors"
 
-	infrav1 "sigs.k8s.io/cluster-api-provider-digitalocean/api/v1alpha4"
-	"sigs.k8s.io/cluster-api-provider-digitalocean/cloud/scope"
-	"sigs.k8s.io/cluster-api-provider-digitalocean/cloud/services/computes"
+	infrav1 "sigs.k8s.io/cluster-api-provider-linode/api/v1alpha4"
+	"sigs.k8s.io/cluster-api-provider-linode/cloud/scope"
+	"sigs.k8s.io/cluster-api-provider-linode/cloud/services/computes"
 
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -45,32 +45,32 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
-// DOMachineReconciler reconciles a DOMachine object.
-type DOMachineReconciler struct {
+// LinodeMachineReconciler reconciles a LinodeMachine object.
+type LinodeMachineReconciler struct {
 	client.Client
 	Recorder record.EventRecorder
 }
 
-func (r *DOMachineReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (r *LinodeMachineReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	c, err := ctrl.NewControllerManagedBy(mgr).
-		For(&infrav1.DOMachine{}).
+		For(&infrav1.LinodeMachine{}).
 		WithEventFilter(predicates.ResourceNotPaused(ctrl.LoggerFrom(ctx))). // don't queue reconcile if resource is paused
 		Watches(
 			&source.Kind{Type: &clusterv1.Machine{}},
-			handler.EnqueueRequestsFromMapFunc(util.MachineToInfrastructureMapFunc(infrav1.GroupVersion.WithKind("DOMachine"))),
+			handler.EnqueueRequestsFromMapFunc(util.MachineToInfrastructureMapFunc(infrav1.GroupVersion.WithKind("LinodeMachine"))),
 		).
 		Watches(
-			&source.Kind{Type: &infrav1.DOCluster{}},
-			handler.EnqueueRequestsFromMapFunc(r.DOClusterToDOMachines(ctx)),
+			&source.Kind{Type: &infrav1.LinodeCluster{}},
+			handler.EnqueueRequestsFromMapFunc(r.LinodeClusterToLinodeMachines(ctx)),
 		).
 		Build(r)
 	if err != nil {
 		return errors.Wrapf(err, "error creating controller")
 	}
 
-	clusterToObjectFunc, err := util.ClusterToObjectsMapper(r.Client, &infrav1.DOMachineList{}, mgr.GetScheme())
+	clusterToObjectFunc, err := util.ClusterToObjectsMapper(r.Client, &infrav1.LinodeMachineList{}, mgr.GetScheme())
 	if err != nil {
-		return errors.Wrapf(err, "failed to create mapper for Cluster to DOMachines")
+		return errors.Wrapf(err, "failed to create mapper for Cluster to LinodeMachines")
 	}
 
 	// Add a watch on clusterv1.Cluster object for unpause & ready notifications.
@@ -85,14 +85,14 @@ func (r *DOMachineReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Man
 	return nil
 }
 
-func (r *DOMachineReconciler) DOClusterToDOMachines(ctx context.Context) handler.MapFunc {
+func (r *LinodeMachineReconciler) LinodeClusterToLinodeMachines(ctx context.Context) handler.MapFunc {
 	log := ctrl.LoggerFrom(ctx)
 	return func(o client.Object) []ctrl.Request {
 		result := []ctrl.Request{}
 
-		c, ok := o.(*infrav1.DOCluster)
+		c, ok := o.(*infrav1.LinodeCluster)
 		if !ok {
-			log.Error(errors.Errorf("expected a DOCluster but got a %T", o), "failed to get DOMachine for DOCluster")
+			log.Error(errors.Errorf("expected a LinodeCluster but got a %T", o), "failed to get LinodeMachine for LinodeCluster")
 			return nil
 		}
 
@@ -123,17 +123,17 @@ func (r *DOMachineReconciler) DOClusterToDOMachines(ctx context.Context) handler
 	}
 }
 
-// +kubebuilder:rbac:groups=infrastructure.cluster.x-k8s.io,resources=domachines,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=infrastructure.cluster.x-k8s.io,resources=domachines/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=infrastructure.cluster.x-k8s.io,resources=linodemachines,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=infrastructure.cluster.x-k8s.io,resources=linodemachines/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=cluster.x-k8s.io,resources=machines;machines/status,verbs=get;list;watch
 // +kubebuilder:rbac:groups="",resources=events,verbs=get;list;watch;create;update;patch
 // +kubebuilder:rbac:groups="",resources=secrets;,verbs=get;list;watch
 
-func (r *DOMachineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, reterr error) {
+func (r *LinodeMachineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, reterr error) {
 	log := ctrl.LoggerFrom(ctx)
 
-	domachine := &infrav1.DOMachine{}
-	if err := r.Get(ctx, req.NamespacedName, domachine); err != nil {
+	linodemachine := &infrav1.LinodeMachine{}
+	if err := r.Get(ctx, req.NamespacedName, linodemachine); err != nil {
 		if apierrors.IsNotFound(err) {
 			return reconcile.Result{}, nil
 		}
@@ -141,7 +141,7 @@ func (r *DOMachineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	}
 
 	// Fetch the Machine.
-	machine, err := util.GetOwnerMachine(ctx, r.Client, domachine.ObjectMeta)
+	machine, err := util.GetOwnerMachine(ctx, r.Client, linodemachine.ObjectMeta)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
@@ -157,12 +157,12 @@ func (r *DOMachineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		return reconcile.Result{}, nil
 	}
 
-	docluster := &infrav1.DOCluster{}
-	doclusterNamespacedName := client.ObjectKey{
-		Namespace: domachine.Namespace,
+	linodecluster := &infrav1.LinodeCluster{}
+	linodeclusterNamespacedName := client.ObjectKey{
+		Namespace: linodemachine.Namespace,
 		Name:      cluster.Spec.InfrastructureRef.Name,
 	}
-	if err := r.Get(ctx, doclusterNamespacedName, docluster); err != nil {
+	if err := r.Get(ctx, linodeclusterNamespacedName, linodecluster); err != nil {
 		log.Info("DOluster is not available yet")
 		return reconcile.Result{}, nil
 	}
@@ -172,7 +172,7 @@ func (r *DOMachineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		Client:    r.Client,
 		Logger:    log,
 		Cluster:   cluster,
-		DOCluster: docluster,
+		LinodeCluster: linodecluster,
 	})
 	if err != nil {
 		return reconcile.Result{}, err
@@ -184,14 +184,14 @@ func (r *DOMachineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		Client:    r.Client,
 		Cluster:   cluster,
 		Machine:   machine,
-		DOCluster: docluster,
-		DOMachine: domachine,
+		LinodeCluster: linodecluster,
+		LinodeMachine: linodemachine,
 	})
 	if err != nil {
 		return reconcile.Result{}, errors.Errorf("failed to create scope: %+v", err)
 	}
 
-	// Always close the scope when exiting this function so we can persist any DOMachine changes.
+	// Always close the scope when exiting this function so we can persist any LinodeMachine changes.
 	defer func() {
 		if err := machineScope.Close(); err != nil && reterr == nil {
 			reterr = err
@@ -199,19 +199,19 @@ func (r *DOMachineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	}()
 
 	// Handle deleted machines
-	if !domachine.ObjectMeta.DeletionTimestamp.IsZero() {
+	if !linodemachine.ObjectMeta.DeletionTimestamp.IsZero() {
 		return r.reconcileDelete(ctx, machineScope, clusterScope)
 	}
 
 	return r.reconcile(ctx, machineScope, clusterScope)
 }
 
-func (r *DOMachineReconciler) reconcileVolumes(ctx context.Context, mscope *scope.MachineScope, cscope *scope.ClusterScope) (reconcile.Result, error) {
-	mscope.Info("Reconciling DOMachine Volumes")
+func (r *LinodeMachineReconciler) reconcileVolumes(ctx context.Context, mscope *scope.MachineScope, cscope *scope.ClusterScope) (reconcile.Result, error) {
+	mscope.Info("Reconciling LinodeMachine Volumes")
 	computesvc := computes.NewService(ctx, cscope)
-	domachine := mscope.DOMachine
-	for _, disk := range domachine.Spec.DataDisks {
-		volName := infrav1.DataDiskName(domachine, disk.NameSuffix)
+	linodemachine := mscope.LinodeMachine
+	for _, disk := range linodemachine.Spec.DataDisks {
+		volName := infrav1.DataDiskName(linodemachine, disk.NameSuffix)
 		vol, err := computesvc.GetVolumeByName(volName)
 		if err != nil {
 			return reconcile.Result{}, err
@@ -227,17 +227,17 @@ func (r *DOMachineReconciler) reconcileVolumes(ctx context.Context, mscope *scop
 	return reconcile.Result{}, nil
 }
 
-func (r *DOMachineReconciler) reconcile(ctx context.Context, machineScope *scope.MachineScope, clusterScope *scope.ClusterScope) (reconcile.Result, error) {
-	machineScope.Info("Reconciling DOMachine")
-	domachine := machineScope.DOMachine
-	// If the DOMachine is in an error state, return early.
-	if domachine.Status.FailureReason != nil || domachine.Status.FailureMessage != nil {
+func (r *LinodeMachineReconciler) reconcile(ctx context.Context, machineScope *scope.MachineScope, clusterScope *scope.ClusterScope) (reconcile.Result, error) {
+	machineScope.Info("Reconciling LinodeMachine")
+	linodemachine := machineScope.LinodeMachine
+	// If the LinodeMachine is in an error state, return early.
+	if linodemachine.Status.FailureReason != nil || linodemachine.Status.FailureMessage != nil {
 		machineScope.Info("Error state detected, skipping reconciliation")
 		return reconcile.Result{}, nil
 	}
 
-	// If the DOMachine doesn't have our finalizer, add it.
-	controllerutil.AddFinalizer(domachine, infrav1.MachineFinalizer)
+	// If the LinodeMachine doesn't have our finalizer, add it.
+	controllerutil.AddFinalizer(linodemachine, infrav1.MachineFinalizer)
 
 	if !machineScope.Cluster.Status.InfrastructureReady {
 		machineScope.Info("Cluster infrastructure is not ready yet")
@@ -263,16 +263,16 @@ func (r *DOMachineReconciler) reconcile(ctx context.Context, machineScope *scope
 	if droplet == nil {
 		droplet, err = computesvc.CreateDroplet(machineScope)
 		if err != nil {
-			err = errors.Errorf("Failed to create droplet instance for DOMachine %s/%s: %v", domachine.Namespace, domachine.Name, err)
-			r.Recorder.Event(domachine, corev1.EventTypeWarning, "InstanceCreatingError", err.Error())
-			machineScope.SetInstanceStatus(infrav1.DOResourceStatusErrored)
+			err = errors.Errorf("Failed to create droplet instance for LinodeMachine %s/%s: %v", linodemachine.Namespace, linodemachine.Name, err)
+			r.Recorder.Event(linodemachine, corev1.EventTypeWarning, "InstanceCreatingError", err.Error())
+			machineScope.SetInstanceStatus(infrav1.LinodeResourceStatusErrored)
 			return reconcile.Result{}, err
 		}
-		r.Recorder.Eventf(domachine, corev1.EventTypeNormal, "InstanceCreated", "Created new droplet instance - %s", droplet.Name)
+		r.Recorder.Eventf(linodemachine, corev1.EventTypeNormal, "InstanceCreated", "Created new droplet instance - %s", droplet.Name)
 	}
 
 	machineScope.SetProviderID(strconv.Itoa(droplet.ID))
-	machineScope.SetInstanceStatus(infrav1.DOResourceStatus(droplet.Status))
+	machineScope.SetInstanceStatus(infrav1.LinodeResourceStatus(droplet.Status))
 
 	addrs, err := computesvc.GetDropletAddress(droplet)
 	if err != nil {
@@ -281,15 +281,15 @@ func (r *DOMachineReconciler) reconcile(ctx context.Context, machineScope *scope
 	}
 	machineScope.SetAddresses(addrs)
 
-	// Proceed to reconcile the DOMachine state.
-	switch infrav1.DOResourceStatus(droplet.Status) {
-	case infrav1.DOResourceStatusNew:
+	// Proceed to reconcile the LinodeMachine state.
+	switch infrav1.LinodeResourceStatus(droplet.Status) {
+	case infrav1.LinodeResourceStatusNew:
 		machineScope.Info("Machine instance is pending", "instance-id", machineScope.GetInstanceID())
 		return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
-	case infrav1.DOResourceStatusRunning:
+	case infrav1.LinodeResourceStatusRunning:
 		machineScope.Info("Machine instance is active", "instance-id", machineScope.GetInstanceID())
 		machineScope.SetReady()
-		r.Recorder.Eventf(domachine, corev1.EventTypeNormal, "DOMachineReady", "DOMachine %s - has ready status", droplet.Name)
+		r.Recorder.Eventf(linodemachine, corev1.EventTypeNormal, "LinodeMachineReady", "LinodeMachine %s - has ready status", droplet.Name)
 		return reconcile.Result{}, nil
 	default:
 		machineScope.SetFailureReason(capierrors.UpdateMachineError)
@@ -297,12 +297,12 @@ func (r *DOMachineReconciler) reconcile(ctx context.Context, machineScope *scope
 		return reconcile.Result{}, nil
 	}
 }
-func (r *DOMachineReconciler) reconcileDeleteVolumes(ctx context.Context, mscope *scope.MachineScope, cscope *scope.ClusterScope) (reconcile.Result, error) {
-	mscope.Info("Reconciling delete DOMachine Volumes")
+func (r *LinodeMachineReconciler) reconcileDeleteVolumes(ctx context.Context, mscope *scope.MachineScope, cscope *scope.ClusterScope) (reconcile.Result, error) {
+	mscope.Info("Reconciling delete LinodeMachine Volumes")
 	computesvc := computes.NewService(ctx, cscope)
-	domachine := mscope.DOMachine
-	for _, disk := range domachine.Spec.DataDisks {
-		volName := infrav1.DataDiskName(domachine, disk.NameSuffix)
+	linodemachine := mscope.LinodeMachine
+	for _, disk := range linodemachine.Spec.DataDisks {
+		volName := infrav1.DataDiskName(linodemachine, disk.NameSuffix)
 		vol, err := computesvc.GetVolumeByName(volName)
 		if err != nil {
 			return reconcile.Result{}, err
@@ -313,14 +313,14 @@ func (r *DOMachineReconciler) reconcileDeleteVolumes(ctx context.Context, mscope
 		if err = computesvc.DeleteVolume(vol.ID); err != nil {
 			return reconcile.Result{}, err
 		}
-		r.Recorder.Eventf(domachine, corev1.EventTypeNormal, "VolumeDeleted", "Deleted the storage volume - %s", vol.Name)
+		r.Recorder.Eventf(linodemachine, corev1.EventTypeNormal, "VolumeDeleted", "Deleted the storage volume - %s", vol.Name)
 	}
 	return reconcile.Result{}, nil
 }
 
-func (r *DOMachineReconciler) reconcileDelete(ctx context.Context, machineScope *scope.MachineScope, clusterScope *scope.ClusterScope) (reconcile.Result, error) {
-	machineScope.Info("Reconciling delete DOMachine")
-	domachine := machineScope.DOMachine
+func (r *LinodeMachineReconciler) reconcileDelete(ctx context.Context, machineScope *scope.MachineScope, clusterScope *scope.ClusterScope) (reconcile.Result, error) {
+	machineScope.Info("Reconciling delete LinodeMachine")
+	linodemachine := machineScope.LinodeMachine
 
 	computesvc := computes.NewService(ctx, clusterScope)
 	droplet, err := computesvc.GetDroplet(machineScope.GetInstanceID())
@@ -334,12 +334,12 @@ func (r *DOMachineReconciler) reconcileDelete(ctx context.Context, machineScope 
 		}
 	} else {
 		clusterScope.V(2).Info("Unable to locate droplet instance")
-		r.Recorder.Eventf(domachine, corev1.EventTypeWarning, "NoInstanceFound", "Skip deleting")
+		r.Recorder.Eventf(linodemachine, corev1.EventTypeWarning, "NoInstanceFound", "Skip deleting")
 	}
 	if result, err := r.reconcileDeleteVolumes(ctx, machineScope, clusterScope); err != nil {
 		return result, fmt.Errorf("failed to reconcile delete volumes: %w", err)
 	}
-	r.Recorder.Eventf(domachine, corev1.EventTypeNormal, "InstanceDeleted", "Deleted a instance - %s", machineScope.Name())
-	controllerutil.RemoveFinalizer(domachine, infrav1.MachineFinalizer)
+	r.Recorder.Eventf(linodemachine, corev1.EventTypeNormal, "InstanceDeleted", "Deleted a instance - %s", machineScope.Name())
+	controllerutil.RemoveFinalizer(linodemachine, infrav1.MachineFinalizer)
 	return reconcile.Result{}, nil
 }

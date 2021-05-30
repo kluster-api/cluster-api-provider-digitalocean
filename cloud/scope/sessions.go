@@ -36,10 +36,10 @@ func (t *TokenSource) Token() (*oauth2.Token, error) {
 	return token, nil
 }
 
-func (c *DOClients) Session() (*godo.Client, error) {
-	accessToken := os.Getenv("DIGITALOCEAN_ACCESS_TOKEN")
+func (c *LinodeClients) Session() (*godo.Client, error) {
+	accessToken := os.Getenv("LINODE_CLI_TOKEN")
 	if accessToken == "" {
-		return nil, errors.New("env var DIGITALOCEAN_ACCESS_TOKEN is required")
+		return nil, errors.New("env var LINODE_CLI_TOKEN is required")
 	}
 
 	oc := oauth2.NewClient(context.Background(), &TokenSource{

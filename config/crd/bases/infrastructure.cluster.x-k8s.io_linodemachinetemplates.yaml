@@ -6,22 +6,22 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.5.0
   creationTimestamp: null
-  name: domachinetemplates.infrastructure.cluster.x-k8s.io
+  name: linodemachinetemplates.infrastructure.cluster.x-k8s.io
 spec:
   group: infrastructure.cluster.x-k8s.io
   names:
     categories:
     - cluster-api
-    kind: DOMachineTemplate
-    listKind: DOMachineTemplateList
-    plural: domachinetemplates
-    singular: domachinetemplate
+    kind: LinodeMachineTemplate
+    listKind: LinodeMachineTemplateList
+    plural: linodemachinetemplates
+    singular: linodemachinetemplate
   scope: Namespaced
   versions:
   - name: v1alpha4
     schema:
       openAPIV3Schema:
-        description: DOMachineTemplate is the Schema for the domachinetemplates API.
+        description: LinodeMachineTemplate is the Schema for the linodemachinetemplates API.
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
@@ -32,16 +32,16 @@ spec:
           metadata:
             type: object
           spec:
-            description: DOMachineTemplateSpec defines the desired state of DOMachineTemplate.
+            description: LinodeMachineTemplateSpec defines the desired state of LinodeMachineTemplate.
             properties:
               template:
-                description: DOMachineTemplateResource describes the data needed to create am DOMachine from a template.
+                description: LinodeMachineTemplateResource describes the data needed to create am LinodeMachine from a template.
                 properties:
                   spec:
                     description: Spec is the specification of the desired behavior of the machine.
                     properties:
                       additionalTags:
-                        description: AdditionalTags is an optional set of tags to add to DigitalOcean resources managed by the DigitalOcean provider.
+                        description: AdditionalTags is an optional set of tags to add to Linode resources managed by the Linode provider.
                         items:
                           type: string
                         type: array
@@ -72,16 +72,16 @@ spec:
                         anyOf:
                         - type: integer
                         - type: string
-                        description: Droplet image can be image id or slug. See https://developers.digitalocean.com/documentation/v2/#list-all-images
+                        description: Droplet image can be image id or slug. See https://developers.linode.com/documentation/v2/#list-all-images
                         x-kubernetes-int-or-string: true
                       providerID:
                         description: ProviderID is the unique identifier as specified by the cloud provider.
                         type: string
                       size:
-                        description: Droplet size. It must be known DigitalOcean droplet size. See https://developers.digitalocean.com/documentation/v2/#list-all-sizes
+                        description: Droplet size. It must be known Linode droplet size. See https://developers.linode.com/documentation/v2/#list-all-sizes
                         type: string
                       sshKeys:
-                        description: SSHKeys is the ssh key id or fingerprint to attach in DigitalOcean droplet. It must be available on DigitalOcean account. See https://developers.digitalocean.com/documentation/v2/#list-all-keys
+                        description: SSHKeys is the ssh key id or fingerprint to attach in Linode droplet. It must be available on Linode account. See https://developers.linode.com/documentation/v2/#list-all-keys
                         items:
                           anyOf:
                           - type: integer

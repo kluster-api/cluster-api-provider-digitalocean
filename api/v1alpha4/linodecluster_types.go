@@ -22,20 +22,20 @@ import (
 )
 
 const (
-	// ClusterFinalizer allows ReconcileDOCluster to clean up DigitalOcean resources associated with DOCluster before
+	// ClusterFinalizer allows ReconcileLinodeCluster to clean up Linode resources associated with LinodeCluster before
 	// removing it from the apiserver.
-	ClusterFinalizer = "docluster.infrastructure.cluster.x-k8s.io"
+	ClusterFinalizer = "linodecluster.infrastructure.cluster.x-k8s.io"
 )
 
-// DOClusterSpec defines the desired state of DOCluster.
-type DOClusterSpec struct {
-	// The DigitalOcean Region the cluster lives in. It must be one of available
-	// region on DigitalOcean. See
-	// https://developers.digitalocean.com/documentation/v2/#list-all-regions
+// LinodeClusterSpec defines the desired state of LinodeCluster.
+type LinodeClusterSpec struct {
+	// The Linode Region the cluster lives in. It must be one of available
+	// region on Linode. See
+	// https://developers.linode.com/documentation/v2/#list-all-regions
 	Region string `json:"region"`
 	// Network configurations
 	// +optional
-	Network DONetwork `json:"network,omitempty"`
+	Network LinodeNetwork `json:"network,omitempty"`
 	// ControlPlaneEndpoint represents the endpoint used to communicate with the
 	// control plane. If ControlPlaneDNS is unset, the DO load-balancer IP
 	// of the Kubernetes API Server is used.
@@ -44,11 +44,11 @@ type DOClusterSpec struct {
 	// ControlPlaneDNS is a managed DNS name that points to the load-balancer
 	// IP used for the ControlPlaneEndpoint.
 	// +optional
-	ControlPlaneDNS *DOControlPlaneDNS `json:"controlPlaneDNS,omitempty"`
+	ControlPlaneDNS *LinodeControlPlaneDNS `json:"controlPlaneDNS,omitempty"`
 }
 
-// DOClusterStatus defines the observed state of DOCluster.
-type DOClusterStatus struct {
+// LinodeClusterStatus defines the observed state of LinodeCluster.
+type LinodeClusterStatus struct {
 	// Ready denotes that the cluster (infrastructure) is ready.
 	// +optional
 	Ready bool `json:"ready"`
@@ -56,37 +56,37 @@ type DOClusterStatus struct {
 	// propagated to the DO DNS servers.
 	// +optional
 	ControlPlaneDNSRecordReady bool `json:"controlPlaneDNSRecordReady,omitempty"`
-	// Network encapsulates all things related to DigitalOcean network.
+	// Network encapsulates all things related to Linode network.
 	// +optional
-	Network DONetworkResource `json:"network,omitempty"`
+	Network LinodeNetworkResource `json:"network,omitempty"`
 }
 
 // +kubebuilder:object:root=true
-// +kubebuilder:resource:path=doclusters,scope=Namespaced,categories=cluster-api
+// +kubebuilder:resource:path=linodeclusters,scope=Namespaced,categories=cluster-api
 // +kubebuilder:storageversion
 // +kubebuilder:subresource:status
-// +kubebuilder:printcolumn:name="Cluster",type="string",JSONPath=".metadata.labels.cluster\\.x-k8s\\.io/cluster-name",description="Cluster to which this DOCluster belongs"
-// +kubebuilder:printcolumn:name="Ready",type="string",JSONPath=".status.ready",description="Cluster infrastructure is ready for DigitalOcean droplet instances"
+// +kubebuilder:printcolumn:name="Cluster",type="string",JSONPath=".metadata.labels.cluster\\.x-k8s\\.io/cluster-name",description="Cluster to which this LinodeCluster belongs"
+// +kubebuilder:printcolumn:name="Ready",type="string",JSONPath=".status.ready",description="Cluster infrastructure is ready for Linode droplet instances"
 // +kubebuilder:printcolumn:name="Endpoint",type="string",JSONPath=".spec.ControlPlaneEndpoint",description="API Endpoint",priority=1
 
-// DOCluster is the Schema for the DOClusters API.
-type DOCluster struct {
+// LinodeCluster is the Schema for the LinodeClusters API.
+type LinodeCluster struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   DOClusterSpec   `json:"spec,omitempty"`
-	Status DOClusterStatus `json:"status,omitempty"`
+	Spec   LinodeClusterSpec   `json:"spec,omitempty"`
+	Status LinodeClusterStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
 
-// DOClusterList contains a list of DOCluster.
-type DOClusterList struct {
+// LinodeClusterList contains a list of LinodeCluster.
+type LinodeClusterList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []DOCluster `json:"items"`
+	Items           []LinodeCluster `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&DOCluster{}, &DOClusterList{})
+	SchemeBuilder.Register(&LinodeCluster{}, &LinodeClusterList{})
 }

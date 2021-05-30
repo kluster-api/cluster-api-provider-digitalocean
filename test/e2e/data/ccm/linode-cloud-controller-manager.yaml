@@ -2,25 +2,25 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: digitalocean
+  name: linode
   namespace: kube-system
 stringData:
-  access-token: ${DIGITALOCEAN_ACCESS_TOKEN}
+  access-token: ${LINODE_CLI_TOKEN}
 
 ---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: digitalocean-cloud-controller-manager
+  name: linode-cloud-controller-manager
   namespace: kube-system
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: digitalocean-cloud-controller-manager
+      app.kubernetes.io/name: linode-cloud-controller-manager
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: digitalocean-cloud-controller-manager
+        app.kubernetes.io/name: linode-cloud-controller-manager
       annotations:
         scheduler.alpha.kubernetes.io/critical-pod: ''
     spec:
@@ -46,10 +46,10 @@ spec:
           operator: Exists
           tolerationSeconds: 300
       containers:
-      - image: digitalocean/digitalocean-cloud-controller-manager:v0.1.22
-        name: digitalocean-cloud-controller-manager
+      - image: linode/linode-cloud-controller-manager:v0.1.22
+        name: linode-cloud-controller-manager
         command:
-          - "/bin/digitalocean-cloud-controller-manager"
+          - "/bin/linode-cloud-controller-manager"
           - "--leader-elect=true"
         resources:
           requests:
@@ -62,10 +62,10 @@ spec:
                 fieldPath: status.hostIP
           - name: KUBERNETES_SERVICE_PORT
             value: "6443"
-          - name: DO_ACCESS_TOKEN
+          - name: LINODE_ACCESS_TOKEN
             valueFrom:
               secretKeyRef:
-                name: digitalocean
+                name: linode
                 key: access-token
 
 ---

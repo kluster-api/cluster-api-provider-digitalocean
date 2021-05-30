@@ -19,7 +19,7 @@ import (
 	"github.com/digitalocean/godo"
 )
 
-type DOClients struct {
+type LinodeClients struct {
 	Actions       godo.ActionsService
 	Droplets      godo.DropletsService
 	Storage       godo.StorageService

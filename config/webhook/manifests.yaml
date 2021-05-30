@@ -12,10 +12,10 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-infrastructure-cluster-x-k8s-io-v1alpha4-docluster
+      path: /mutate-infrastructure-cluster-x-k8s-io-v1alpha4-linodecluster
   failurePolicy: Fail
   matchPolicy: Equivalent
-  name: default.docluster.infrastructure.cluster.x-k8s.io
+  name: default.linodecluster.infrastructure.cluster.x-k8s.io
   rules:
   - apiGroups:
     - infrastructure.cluster.x-k8s.io
@@ -25,7 +25,7 @@ webhooks:
     - CREATE
     - UPDATE
     resources:
-    - doclusters
+    - linodeclusters
   sideEffects: None
 - admissionReviewVersions:
   - v1beta1
@@ -33,10 +33,10 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-infrastructure-cluster-x-k8s-io-v1alpha4-domachine
+      path: /mutate-infrastructure-cluster-x-k8s-io-v1alpha4-linodemachine
   failurePolicy: Fail
   matchPolicy: Equivalent
-  name: default.domachine.infrastructure.cluster.x-k8s.io
+  name: default.linodemachine.infrastructure.cluster.x-k8s.io
   rules:
   - apiGroups:
     - infrastructure.cluster.x-k8s.io
@@ -46,7 +46,7 @@ webhooks:
     - CREATE
     - UPDATE
     resources:
-    - domachines
+    - linodemachines
   sideEffects: None
 
 ---
@@ -62,10 +62,10 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-infrastructure-cluster-x-k8s-io-v1alpha4-docluster
+      path: /validate-infrastructure-cluster-x-k8s-io-v1alpha4-linodecluster
   failurePolicy: Fail
   matchPolicy: Equivalent
-  name: validation.docluster.infrastructure.cluster.x-k8s.io
+  name: validation.linodecluster.infrastructure.cluster.x-k8s.io
   rules:
   - apiGroups:
     - infrastructure.cluster.x-k8s.io
@@ -75,7 +75,7 @@ webhooks:
     - CREATE
     - UPDATE
     resources:
-    - doclusters
+    - linodeclusters
   sideEffects: None
 - admissionReviewVersions:
   - v1beta1
@@ -83,10 +83,10 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-infrastructure-cluster-x-k8s-io-v1alpha4-domachine
+      path: /validate-infrastructure-cluster-x-k8s-io-v1alpha4-linodemachine
   failurePolicy: Fail
   matchPolicy: Equivalent
-  name: validation.domachine.infrastructure.cluster.x-k8s.io
+  name: validation.linodemachine.infrastructure.cluster.x-k8s.io
   rules:
   - apiGroups:
     - infrastructure.cluster.x-k8s.io
@@ -96,7 +96,7 @@ webhooks:
     - CREATE
     - UPDATE
     resources:
-    - domachines
+    - linodemachines
   sideEffects: None
 - admissionReviewVersions:
   - v1beta1
@@ -104,10 +104,10 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-infrastructure-cluster-x-k8s-io-v1alpha4-domachinetemplate
+      path: /validate-infrastructure-cluster-x-k8s-io-v1alpha4-linodemachinetemplate
   failurePolicy: Fail
   matchPolicy: Equivalent
-  name: validation.domachinetemplate.infrastructure.x-k8s.io
+  name: validation.linodemachinetemplate.infrastructure.x-k8s.io
   rules:
   - apiGroups:
     - infrastructure.cluster.x-k8s.io
@@ -117,5 +117,5 @@ webhooks:
     - CREATE
     - UPDATE
     resources:
-    - domachinetemplates
+    - linodemachinetemplates
   sideEffects: None

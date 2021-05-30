@@ -24,8 +24,8 @@ import (
 	"github.com/digitalocean/godo"
 	"github.com/pkg/errors"
 
-	infrav1 "sigs.k8s.io/cluster-api-provider-digitalocean/api/v1alpha4"
-	"sigs.k8s.io/cluster-api-provider-digitalocean/cloud/scope"
+	infrav1 "sigs.k8s.io/cluster-api-provider-linode/api/v1alpha4"
+	"sigs.k8s.io/cluster-api-provider-linode/cloud/scope"
 
 	corev1 "k8s.io/api/core/v1"
 )
@@ -33,7 +33,7 @@ import (
 // GetDroplet get a droplet instance.
 func (s *Service) GetDroplet(id string) (*godo.Droplet, error) {
 	if id == "" {
-		s.scope.Info("DOMachine does not have an instance id")
+		s.scope.Info("LinodeMachine does not have an instance id")
 		return nil, nil
 	}
 
@@ -63,16 +63,16 @@ func (s *Service) CreateDroplet(scope *scope.MachineScope) (*godo.Droplet, error
 		return nil, errors.Wrap(err, "failed to decode bootstrap data")
 	}
 
-	clusterName := infrav1.DOSafeName(s.scope.Name())
-	instanceName := infrav1.DOSafeName(scope.Name())
+	clusterName := infrav1.LinodeSafeName(s.scope.Name())
+	instanceName := infrav1.LinodeSafeName(scope.Name())
 
-	imageID, err := s.GetImageID(scope.DOMachine.Spec.Image)
+	imageID, err := s.GetImageID(scope.LinodeMachine.Spec.Image)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting image")
 	}
 
 	sshkeys := []godo.DropletCreateSSHKey{}
-	for _, v := range scope.DOMachine.Spec.SSHKeys {
+	for _, v := range scope.LinodeMachine.Spec.SSHKeys {
 		keys, err := s.GetSSHKey(v)
 		if err != nil {
 			return nil, err
@@ -84,8 +84,8 @@ func (s *Service) CreateDroplet(scope *scope.MachineScope) (*godo.Droplet, error
 	}
 
 	volumes := []godo.DropletCreateVolume{}
-	for _, disk := range scope.DOMachine.Spec.DataDisks {
-		volName := infrav1.DataDiskName(scope.DOMachine, disk.NameSuffix)
+	for _, disk := range scope.LinodeMachine.Spec.DataDisks {
+		volName := infrav1.DataDiskName(scope.LinodeMachine, disk.NameSuffix)
 		vol, err := s.GetVolumeByName(volName)
 		if err != nil {
 			return nil, fmt.Errorf("could not get volume to attach to droplet: %w", err)
@@ -99,7 +99,7 @@ func (s *Service) CreateDroplet(scope *scope.MachineScope) (*godo.Droplet, error
 	request := &godo.DropletCreateRequest{
 		Name:    instanceName,
 		Region:  s.scope.Region(),
-		Size:    scope.DOMachine.Spec.Size,
+		Size:    scope.LinodeMachine.Spec.Size,
 		SSHKeys: sshkeys,
 		Image: godo.DropletCreateImage{
 			ID: imageID,

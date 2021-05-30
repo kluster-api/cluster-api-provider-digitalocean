@@ -31,9 +31,9 @@ source "${REPO_ROOT}/hack/ensure-go.sh"
 source "${REPO_ROOT}/hack/ensure-doctl.sh"
 
 export ARTIFACTS="${ARTIFACTS:-${REPO_ROOT}/_artifacts}"
-export E2E_CONF_FILE="${REPO_ROOT}/test/e2e/config/digitalocean-ci.yaml"
+export E2E_CONF_FILE="${REPO_ROOT}/test/e2e/config/linode-ci.yaml"
 
-SSH_KEY_NAME=capdo-e2e-$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 12 ; echo '')
+SSH_KEY_NAME=capln-e2e-$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 12 ; echo '')
 SSH_KEY_PATH=/tmp/${SSH_KEY_NAME}
 create_ssh_key() {
     echo "generating new ssh key"
@@ -55,7 +55,7 @@ create_ssh_key
 SSH_KEY_FINGERPRINT=$(ssh-keygen -E md5 -lf "${SSH_KEY_PATH}" | awk '{ print $2 }' | cut -c 5-)
 trap 'remove_ssh_key ${SSH_KEY_FINGERPRINT}' EXIT
 
-export DO_SSH_KEY_FINGERPRINT=${SSH_KEY_FINGERPRINT}
+export LINODE_SSH_KEY_FINGERPRINT=${SSH_KEY_FINGERPRINT}
 
 make test-e2e
 test_status="${?}"

@@ -1,9 +1,9 @@
-namespace: capdo-system
+namespace: capln-system
 
-namePrefix: capdo-
+namePrefix: capln-
 
 commonLabels:
-  cluster.x-k8s.io/provider: "infrastructure-digitalocean"
+  cluster.x-k8s.io/provider: "infrastructure-linode"
 
 resources:
 - namespace.yaml

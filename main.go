@@ -29,10 +29,10 @@ import (
 	"k8s.io/klog/v2"
 	"k8s.io/klog/v2/klogr"
 
-	infrav1alpha4 "sigs.k8s.io/cluster-api-provider-digitalocean/api/v1alpha4"
-	"sigs.k8s.io/cluster-api-provider-digitalocean/controllers"
-	dnsutil "sigs.k8s.io/cluster-api-provider-digitalocean/util/dns"
-	dnsresolver "sigs.k8s.io/cluster-api-provider-digitalocean/util/dns/resolver"
+	infrav1alpha4 "sigs.k8s.io/cluster-api-provider-linode/api/v1alpha4"
+	"sigs.k8s.io/cluster-api-provider-linode/controllers"
+	dnsutil "sigs.k8s.io/cluster-api-provider-linode/util/dns"
+	dnsresolver "sigs.k8s.io/cluster-api-provider-linode/util/dns/resolver"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -104,7 +104,7 @@ func main() {
 		Scheme:                  scheme,
 		MetricsBindAddress:      metricsAddr,
 		LeaderElection:          enableLeaderElection,
-		LeaderElectionID:        "controller-leader-election-capdo",
+		LeaderElectionID:        "controller-leader-election-capln",
 		LeaderElectionNamespace: leaderElectionNamespace,
 		Namespace:               watchNamespace,
 		SyncPeriod:              &syncPeriod,
@@ -117,7 +117,7 @@ func main() {
 	}
 
 	// Initialize event recorder.
-	record.InitFromRecorder(mgr.GetEventRecorderFor("digitalocean-controller"))
+	record.InitFromRecorder(mgr.GetEventRecorderFor("linode-controller"))
 
 	dnsresolver, err := dnsresolver.NewDNSResolver()
 	if err != nil {
@@ -127,31 +127,31 @@ func main() {
 
 	dnsutil.InitFromDNSResolver(dnsresolver)
 
-	if err = (&controllers.DOClusterReconciler{
+	if err = (&controllers.LinodeClusterReconciler{
 		Client:   mgr.GetClient(),
-		Recorder: mgr.GetEventRecorderFor("docluster-controller"),
+		Recorder: mgr.GetEventRecorderFor("linodecluster-controller"),
 	}).SetupWithManager(ctx, mgr, controller.Options{}); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "DOCluster")
+		setupLog.Error(err, "unable to create controller", "controller", "LinodeCluster")
 		os.Exit(1)
 	}
-	if err = (&controllers.DOMachineReconciler{
+	if err = (&controllers.LinodeMachineReconciler{
 		Client:   mgr.GetClient(),
-		Recorder: mgr.GetEventRecorderFor("domachine-controller"),
+		Recorder: mgr.GetEventRecorderFor("linodemachine-controller"),
 	}).SetupWithManager(ctx, mgr, controller.Options{}); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "DOMachine")
+		setupLog.Error(err, "unable to create controller", "controller", "LinodeMachine")
 		os.Exit(1)
 	}
 
-	if err := (&infrav1alpha4.DOCluster{}).SetupWebhookWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create webhook", "webhook", "DOCluster")
+	if err := (&infrav1alpha4.LinodeCluster{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "LinodeCluster")
 		os.Exit(1)
 	}
-	if err := (&infrav1alpha4.DOMachine{}).SetupWebhookWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create webhook", "webhook", "DOMachine")
+	if err := (&infrav1alpha4.LinodeMachine{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "LinodeMachine")
 		os.Exit(1)
 	}
-	if err := (&infrav1alpha4.DOMachineTemplate{}).SetupWebhookWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create webhook", "webhook", "DOMachineTemplate")
+	if err := (&infrav1alpha4.LinodeMachineTemplate{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "LinodeMachineTemplate")
 		os.Exit(1)
 	}
 

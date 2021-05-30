@@ -31,44 +31,44 @@ import (
 )
 
 // log is for logging in this package.
-var _ = logf.Log.WithName("docluster-resource")
+var _ = logf.Log.WithName("linodecluster-resource")
 
-// +kubebuilder:webhook:verbs=create;update,path=/validate-infrastructure-cluster-x-k8s-io-v1alpha4-docluster,mutating=false,failurePolicy=fail,matchPolicy=Equivalent,groups=infrastructure.cluster.x-k8s.io,resources=doclusters,versions=v1alpha4,name=validation.docluster.infrastructure.cluster.x-k8s.io,sideEffects=None,admissionReviewVersions=v1beta1
-// +kubebuilder:webhook:verbs=create;update,path=/mutate-infrastructure-cluster-x-k8s-io-v1alpha4-docluster,mutating=true,failurePolicy=fail,matchPolicy=Equivalent,groups=infrastructure.cluster.x-k8s.io,resources=doclusters,versions=v1alpha4,name=default.docluster.infrastructure.cluster.x-k8s.io,sideEffects=None,admissionReviewVersions=v1beta1
+// +kubebuilder:webhook:verbs=create;update,path=/validate-infrastructure-cluster-x-k8s-io-v1alpha4-linodecluster,mutating=false,failurePolicy=fail,matchPolicy=Equivalent,groups=infrastructure.cluster.x-k8s.io,resources=linodeclusters,versions=v1alpha4,name=validation.linodecluster.infrastructure.cluster.x-k8s.io,sideEffects=None,admissionReviewVersions=v1beta1
+// +kubebuilder:webhook:verbs=create;update,path=/mutate-infrastructure-cluster-x-k8s-io-v1alpha4-linodecluster,mutating=true,failurePolicy=fail,matchPolicy=Equivalent,groups=infrastructure.cluster.x-k8s.io,resources=linodeclusters,versions=v1alpha4,name=default.linodecluster.infrastructure.cluster.x-k8s.io,sideEffects=None,admissionReviewVersions=v1beta1
 
 var (
-	_ webhook.Defaulter = &DOCluster{}
-	_ webhook.Validator = &DOCluster{}
+	_ webhook.Defaulter = &LinodeCluster{}
+	_ webhook.Validator = &LinodeCluster{}
 )
 
-func (r *DOCluster) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func (r *LinodeCluster) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(r).
 		Complete()
 }
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
-func (r *DOCluster) Default() {}
+func (r *LinodeCluster) Default() {}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type.
-func (r *DOCluster) ValidateCreate() error {
+func (r *LinodeCluster) ValidateCreate() error {
 	return nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *DOCluster) ValidateUpdate(old runtime.Object) error {
+func (r *LinodeCluster) ValidateUpdate(old runtime.Object) error {
 	var allErrs field.ErrorList
 
-	oldDOCluster, ok := old.(*DOCluster)
+	oldLinodeCluster, ok := old.(*LinodeCluster)
 	if !ok {
-		return apierrors.NewBadRequest(fmt.Sprintf("expected an DOCluster but got a %T", old))
+		return apierrors.NewBadRequest(fmt.Sprintf("expected an LinodeCluster but got a %T", old))
 	}
 
-	if r.Spec.Region != oldDOCluster.Spec.Region {
+	if r.Spec.Region != oldLinodeCluster.Spec.Region {
 		allErrs = append(allErrs, field.Invalid(field.NewPath("spec", "region"), r.Spec.Region, "field is immutable"))
 	}
 
-	if !reflect.DeepEqual(clusterv1.APIEndpoint{}, oldDOCluster.Spec.ControlPlaneEndpoint) && !reflect.DeepEqual(r.Spec.ControlPlaneEndpoint, oldDOCluster.Spec.ControlPlaneEndpoint) {
+	if !reflect.DeepEqual(clusterv1.APIEndpoint{}, oldLinodeCluster.Spec.ControlPlaneEndpoint) && !reflect.DeepEqual(r.Spec.ControlPlaneEndpoint, oldLinodeCluster.Spec.ControlPlaneEndpoint) {
 		allErrs = append(allErrs, field.Invalid(field.NewPath("spec", "controlPlaneEndpoint"), r.Spec.Region, "field is immutable"))
 	}
 
@@ -80,6 +80,6 @@ func (r *DOCluster) ValidateUpdate(old runtime.Object) error {
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *DOCluster) ValidateDelete() error {
+func (r *LinodeCluster) ValidateDelete() error {
 	return nil
 }

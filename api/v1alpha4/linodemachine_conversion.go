@@ -16,8 +16,8 @@ limitations under the License.
 
 package v1alpha4
 
-// Hub marks DOCluster as a conversion hub.
-func (*DOCluster) Hub() {}
+// Hub marks LinodeMachine as a conversion hub.
+func (*LinodeMachine) Hub() {}
 
-// Hub marks DOClusterList as a conversion hub.
-func (*DOClusterList) Hub() {}
+// Hub marks LinodeMachineList as a conversion hub.
+func (*LinodeMachineList) Hub() {}

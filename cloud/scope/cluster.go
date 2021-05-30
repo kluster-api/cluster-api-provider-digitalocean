@@ -22,7 +22,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 
-	infrav1 "sigs.k8s.io/cluster-api-provider-digitalocean/api/v1alpha4"
+	infrav1 "sigs.k8s.io/cluster-api-provider-linode/api/v1alpha4"
 
 	"k8s.io/klog/v2/klogr"
 
@@ -33,60 +33,60 @@ import (
 
 // ClusterScopeParams defines the input parameters used to create a new Scope.
 type ClusterScopeParams struct {
-	DOClients
+	LinodeClients
 	Client    client.Client
 	Logger    logr.Logger
 	Cluster   *clusterv1.Cluster
-	DOCluster *infrav1.DOCluster
+	LinodeCluster *infrav1.LinodeCluster
 }
 
 // NewClusterScope creates a new ClusterScope from the supplied parameters.
-// This is meant to be called for each reconcile iteration only on DOClusterReconciler.
+// This is meant to be called for each reconcile iteration only on LinodeClusterReconciler.
 func NewClusterScope(params ClusterScopeParams) (*ClusterScope, error) {
 	if params.Cluster == nil {
 		return nil, errors.New("Cluster is required when creating a ClusterScope")
 	}
-	if params.DOCluster == nil {
-		return nil, errors.New("DOCluster is required when creating a ClusterScope")
+	if params.LinodeCluster == nil {
+		return nil, errors.New("LinodeCluster is required when creating a ClusterScope")
 	}
 	if params.Logger == nil {
 		params.Logger = klogr.New()
 	}
 
-	session, err := params.DOClients.Session()
+	session, err := params.LinodeClients.Session()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create DO session")
 	}
 
-	if params.DOClients.Actions == nil {
-		params.DOClients.Actions = session.Actions
+	if params.LinodeClients.Actions == nil {
+		params.LinodeClients.Actions = session.Actions
 	}
 
-	if params.DOClients.Droplets == nil {
-		params.DOClients.Droplets = session.Droplets
+	if params.LinodeClients.Droplets == nil {
+		params.LinodeClients.Droplets = session.Droplets
 	}
 
-	if params.DOClients.Storage == nil {
-		params.DOClients.Storage = session.Storage
+	if params.LinodeClients.Storage == nil {
+		params.LinodeClients.Storage = session.Storage
 	}
 
-	if params.DOClients.Images == nil {
-		params.DOClients.Images = session.Images
+	if params.LinodeClients.Images == nil {
+		params.LinodeClients.Images = session.Images
 	}
 
-	if params.DOClients.Keys == nil {
-		params.DOClients.Keys = session.Keys
+	if params.LinodeClients.Keys == nil {
+		params.LinodeClients.Keys = session.Keys
 	}
 
-	if params.DOClients.LoadBalancers == nil {
-		params.DOClients.LoadBalancers = session.LoadBalancers
+	if params.LinodeClients.LoadBalancers == nil {
+		params.LinodeClients.LoadBalancers = session.LoadBalancers
 	}
 
-	if params.DOClients.Domains == nil {
-		params.DOClients.Domains = session.Domains
+	if params.LinodeClients.Domains == nil {
+		params.LinodeClients.Domains = session.Domains
 	}
 
-	helper, err := patch.NewHelper(params.DOCluster, params.Client)
+	helper, err := patch.NewHelper(params.LinodeCluster, params.Client)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to init patch helper")
 	}
@@ -94,9 +94,9 @@ func NewClusterScope(params ClusterScopeParams) (*ClusterScope, error) {
 	return &ClusterScope{
 		Logger:      params.Logger,
 		client:      params.Client,
-		DOClients:   params.DOClients,
+		LinodeClients:   params.LinodeClients,
 		Cluster:     params.Cluster,
-		DOCluster:   params.DOCluster,
+		LinodeCluster:   params.LinodeCluster,
 		patchHelper: helper,
 	}, nil
 }
@@ -107,14 +107,14 @@ type ClusterScope struct {
 	client      client.Client
 	patchHelper *patch.Helper
 
-	DOClients
+	LinodeClients
 	Cluster   *clusterv1.Cluster
-	DOCluster *infrav1.DOCluster
+	LinodeCluster *infrav1.LinodeCluster
 }
 
 // Close closes the current scope persisting the cluster configuration and status.
 func (s *ClusterScope) Close() error {
-	return s.patchHelper.Patch(context.TODO(), s.DOCluster)
+	return s.patchHelper.Patch(context.TODO(), s.LinodeCluster)
 }
 
 // Name returns the cluster name.
@@ -133,40 +133,40 @@ func (s *ClusterScope) UID() string {
 
 // Region returns the cluster region.
 func (s *ClusterScope) Region() string {
-	return s.DOCluster.Spec.Region
+	return s.LinodeCluster.Spec.Region
 }
 
 // Network returns the cluster network object.
-func (s *ClusterScope) Network() *infrav1.DONetworkResource {
-	return &s.DOCluster.Status.Network
+func (s *ClusterScope) Network() *infrav1.LinodeNetworkResource {
+	return &s.LinodeCluster.Status.Network
 }
 
-// SetReady sets the DOCluster Ready Status.
+// SetReady sets the LinodeCluster Ready Status.
 func (s *ClusterScope) SetReady() {
-	s.DOCluster.Status.Ready = true
+	s.LinodeCluster.Status.Ready = true
 }
 
-// SetControlPlaneDNSRecordReady sets the DOCluster ControlPlaneDNSRecordReady Status.
+// SetControlPlaneDNSRecordReady sets the LinodeCluster ControlPlaneDNSRecordReady Status.
 func (s *ClusterScope) SetControlPlaneDNSRecordReady(ready bool) {
-	s.DOCluster.Status.ControlPlaneDNSRecordReady = ready
+	s.LinodeCluster.Status.ControlPlaneDNSRecordReady = ready
 }
 
-// SetControlPlaneEndpoint sets the DOCluster status APIEndpoints.
+// SetControlPlaneEndpoint sets the LinodeCluster status APIEndpoints.
 func (s *ClusterScope) SetControlPlaneEndpoint(apiEndpoint clusterv1.APIEndpoint) {
-	s.DOCluster.Spec.ControlPlaneEndpoint = apiEndpoint
+	s.LinodeCluster.Spec.ControlPlaneEndpoint = apiEndpoint
 }
 
-// APIServerLoadbalancers get the DOCluster Spec Network APIServerLoadbalancers.
-func (s *ClusterScope) APIServerLoadbalancers() *infrav1.DOLoadBalancer {
-	return &s.DOCluster.Spec.Network.APIServerLoadbalancers
+// APIServerLoadbalancers get the LinodeCluster Spec Network APIServerLoadbalancers.
+func (s *ClusterScope) APIServerLoadbalancers() *infrav1.LinodeLoadBalancer {
+	return &s.LinodeCluster.Spec.Network.APIServerLoadbalancers
 }
 
-// APIServerLoadbalancersRef get the DOCluster status Network APIServerLoadbalancersRef.
-func (s *ClusterScope) APIServerLoadbalancersRef() *infrav1.DOResourceReference {
-	return &s.DOCluster.Status.Network.APIServerLoadbalancersRef
+// APIServerLoadbalancersRef get the LinodeCluster status Network APIServerLoadbalancersRef.
+func (s *ClusterScope) APIServerLoadbalancersRef() *infrav1.LinodeResourceReference {
+	return &s.LinodeCluster.Status.Network.APIServerLoadbalancersRef
 }
 
-// VPC gets the DOCluster Spec Network VPC.
-func (s *ClusterScope) VPC() *infrav1.DOVPC {
-	return &s.DOCluster.Spec.Network.VPC
+// VPC gets the LinodeCluster Spec Network VPC.
+func (s *ClusterScope) VPC() *infrav1.LinodeVPC {
+	return &s.LinodeCluster.Spec.Network.VPC
 }

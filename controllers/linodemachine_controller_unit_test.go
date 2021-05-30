@@ -21,7 +21,7 @@ import (
 
 	. "github.com/onsi/gomega"
 
-	infrav1 "sigs.k8s.io/cluster-api-provider-digitalocean/api/v1alpha4"
+	infrav1 "sigs.k8s.io/cluster-api-provider-linode/api/v1alpha4"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -74,7 +74,7 @@ func newMachine(clusterName, machineName string) *clusterv1.Machine {
 func newMachineWithInfrastructureRef(clusterName, machineName string) *clusterv1.Machine {
 	m := newMachine(clusterName, machineName)
 	m.Spec.InfrastructureRef = corev1.ObjectReference{
-		Kind:       "DOMachine",
+		Kind:       "LinodeMachine",
 		Namespace:  "",
 		Name:       machineName,
 		APIVersion: infrav1.GroupVersion.String(),
@@ -82,7 +82,7 @@ func newMachineWithInfrastructureRef(clusterName, machineName string) *clusterv1
 	return m
 }
 
-func TestDOMachineReconciler_DOClusterToDOMachines(t *testing.T) {
+func TestLinodeMachineReconciler_LinodeClusterToLinodeMachines(t *testing.T) {
 	g := NewWithT(t)
 	scheme, err := setupScheme()
 	if err != nil {
@@ -114,7 +114,7 @@ func TestDOMachineReconciler_DOClusterToDOMachines(t *testing.T) {
 			fields: fields{
 				Client: fakec,
 			},
-			request: &infrav1.DOCluster{
+			request: &infrav1.LinodeCluster{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      clusterName,
 					Namespace: namespace,
@@ -145,12 +145,12 @@ func TestDOMachineReconciler_DOClusterToDOMachines(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &DOMachineReconciler{
+			r := &LinodeMachineReconciler{
 				Client:   tt.fields.Client,
 				Recorder: tt.fields.Recorder,
 			}
 
-			fn := r.DOClusterToDOMachines(ctrl.SetupSignalHandler())
+			fn := r.LinodeClusterToLinodeMachines(ctrl.SetupSignalHandler())
 			out := fn(tt.request)
 			g.Expect(out).To(Equal(tt.expected))
 		})

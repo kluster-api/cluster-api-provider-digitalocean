@@ -21,14 +21,14 @@ import (
 	"strings"
 )
 
-// DOSafeName returns DigitalOcean safe name with replacing '.' and '/' to '-'
-// since DigitalOcean doesn't support naming with those character.
-func DOSafeName(name string) string {
+// LinodeSafeName returns Linode safe name with replacing '.' and '/' to '-'
+// since Linode doesn't support naming with those character.
+func LinodeSafeName(name string) string {
 	r := strings.NewReplacer(".", "-", "/", "-")
 	return r.Replace(name)
 }
 
-type DOControlPlaneDNS struct {
+type LinodeControlPlaneDNS struct {
 	// Domain is the DO domain that this record should live in. It must be pre-existing in your DO account.
 	// The format must be a string that conforms to the definition of a subdomain in DNS (RFC 1123)
 	// +kubebuilder:validation:Pattern:=^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
@@ -39,49 +39,49 @@ type DOControlPlaneDNS struct {
 	Name string `json:"name"`
 }
 
-// DOResourceStatus describes the status of a DigitalOcean resource.
-type DOResourceStatus string
+// LinodeResourceStatus describes the status of a Linode resource.
+type LinodeResourceStatus string
 
 var (
-	// DOResourceStatusNew is the string representing a DigitalOcean resource just created and in a provisioning state.
-	DOResourceStatusNew = DOResourceStatus("new")
-	// DOResourceStatusRunning is the string representing a DigitalOcean resource already provisioned and in a active state.
-	DOResourceStatusRunning = DOResourceStatus("active")
-	// DOResourceStatusErrored is the string representing a DigitalOcean resource in a errored state.
-	DOResourceStatusErrored = DOResourceStatus("errored")
-	// DOResourceStatusOff is the string representing a DigitalOcean resource in off state.
-	DOResourceStatusOff = DOResourceStatus("off")
-	// DOResourceStatusArchive is the string representing a DigitalOcean resource in archive state.
-	DOResourceStatusArchive = DOResourceStatus("archive")
+	// LinodeResourceStatusNew is the string representing a Linode resource just created and in a provisioning state.
+	LinodeResourceStatusNew = LinodeResourceStatus("new")
+	// LinodeResourceStatusRunning is the string representing a Linode resource already provisioned and in a active state.
+	LinodeResourceStatusRunning = LinodeResourceStatus("active")
+	// LinodeResourceStatusErrored is the string representing a Linode resource in a errored state.
+	LinodeResourceStatusErrored = LinodeResourceStatus("errored")
+	// LinodeResourceStatusOff is the string representing a Linode resource in off state.
+	LinodeResourceStatusOff = LinodeResourceStatus("off")
+	// LinodeResourceStatusArchive is the string representing a Linode resource in archive state.
+	LinodeResourceStatusArchive = LinodeResourceStatus("archive")
 )
 
-// DOResourceReference is a reference to a DigitalOcean resource.
-type DOResourceReference struct {
-	// ID of DigitalOcean resource
+// LinodeResourceReference is a reference to a Linode resource.
+type LinodeResourceReference struct {
+	// ID of Linode resource
 	// +optional
 	ResourceID string `json:"resourceId,omitempty"`
-	// Status of DigitalOcean resource
+	// Status of Linode resource
 	// +optional
-	ResourceStatus DOResourceStatus `json:"resourceStatus,omitempty"`
+	ResourceStatus LinodeResourceStatus `json:"resourceStatus,omitempty"`
 }
 
-// DONetworkResource encapsulates DigitalOcean networking resources.
-type DONetworkResource struct {
+// LinodeNetworkResource encapsulates Linode networking resources.
+type LinodeNetworkResource struct {
 	// APIServerLoadbalancersRef is the id of apiserver loadbalancers.
 	// +optional
-	APIServerLoadbalancersRef DOResourceReference `json:"apiServerLoadbalancersRef,omitempty"`
+	APIServerLoadbalancersRef LinodeResourceReference `json:"apiServerLoadbalancersRef,omitempty"`
 }
 
-// DOMachineTemplateResource describes the data needed to create am DOMachine from a template.
-type DOMachineTemplateResource struct {
+// LinodeMachineTemplateResource describes the data needed to create am LinodeMachine from a template.
+type LinodeMachineTemplateResource struct {
 	// Spec is the specification of the desired behavior of the machine.
-	Spec DOMachineSpec `json:"spec"`
+	Spec LinodeMachineSpec `json:"spec"`
 }
 
 // DataDiskName is the volume name used for a data disk of a droplet.
 // It's in the form of <dropletName>-<dataDiskNameSuffix>.
-func DataDiskName(m *DOMachine, suffix string) string {
-	return DOSafeName(fmt.Sprintf("%s-%s", m.Name, suffix))
+func DataDiskName(m *LinodeMachine, suffix string) string {
+	return LinodeSafeName(fmt.Sprintf("%s-%s", m.Name, suffix))
 }
 
 // DataDisk specifies the parameters that are used to add a data disk to the machine.
@@ -100,18 +100,18 @@ type DataDisk struct {
 	FilesystemLabel string `json:"filesystemLabel,omitempty"`
 }
 
-// DONetwork encapsulates DigitalOcean networking configuration.
-type DONetwork struct {
+// LinodeNetwork encapsulates Linode networking configuration.
+type LinodeNetwork struct {
 	// Configures an API Server loadbalancers
 	// +optional
-	APIServerLoadbalancers DOLoadBalancer `json:"apiServerLoadbalancers,omitempty"`
+	APIServerLoadbalancers LinodeLoadBalancer `json:"apiServerLoadbalancers,omitempty"`
 	// VPC defines the VPC configuration.
 	// +optional
-	VPC DOVPC `json:"vpc,omitempty"`
+	VPC LinodeVPC `json:"vpc,omitempty"`
 }
 
-// DOLoadBalancer define the DigitalOcean loadbalancers configurations.
-type DOLoadBalancer struct {
+// LinodeLoadBalancer define the Linode loadbalancers configurations.
+type LinodeLoadBalancer struct {
 	// API Server port. It must be valid ports range (1-65535). If omitted, default value is 6443.
 	// +optional
 	// +kubebuilder:validation:Minimum=1
@@ -124,11 +124,11 @@ type DOLoadBalancer struct {
 	Algorithm string `json:"algorithm,omitempty"`
 	// An object specifying health check settings for the Load Balancer. If omitted, default values will be provided.
 	// +optional
-	HealthCheck DOLoadBalancerHealthCheck `json:"healthCheck,omitempty"`
+	HealthCheck LinodeLoadBalancerHealthCheck `json:"healthCheck,omitempty"`
 }
 
-// DOVPC define the DigitalOcean VPC configuration.
-type DOVPC struct {
+// LinodeVPC define the Linode VPC configuration.
+type LinodeVPC struct {
 	// VPCUUID defines the VPC UUID to use. An empty value implies using the
 	// default VPC.
 	// +optional
@@ -145,7 +145,7 @@ var (
 )
 
 // ApplyDefault give APIServerLoadbalancers default values.
-func (in *DOLoadBalancer) ApplyDefault() {
+func (in *LinodeLoadBalancer) ApplyDefault() {
 	if in.Port == 0 {
 		in.Port = DefaultLBPort
 	}
@@ -166,8 +166,8 @@ func (in *DOLoadBalancer) ApplyDefault() {
 	}
 }
 
-// DOLoadBalancerHealthCheck define the DigitalOcean loadbalancers health check configurations.
-type DOLoadBalancerHealthCheck struct {
+// LinodeLoadBalancerHealthCheck define the Linode loadbalancers health check configurations.
+type LinodeLoadBalancerHealthCheck struct {
 	// The number of seconds between between two consecutive health checks. The value must be between 3 and 300.
 	// If not specified, the default value is 10.
 	// +optional

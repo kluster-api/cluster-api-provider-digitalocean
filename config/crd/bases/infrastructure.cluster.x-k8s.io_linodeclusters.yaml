@@ -6,24 +6,24 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.5.0
   creationTimestamp: null
-  name: doclusters.infrastructure.cluster.x-k8s.io
+  name: linodeclusters.infrastructure.cluster.x-k8s.io
 spec:
   group: infrastructure.cluster.x-k8s.io
   names:
     categories:
     - cluster-api
-    kind: DOCluster
-    listKind: DOClusterList
-    plural: doclusters
-    singular: docluster
+    kind: LinodeCluster
+    listKind: LinodeClusterList
+    plural: linodeclusters
+    singular: linodecluster
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - description: Cluster to which this DOCluster belongs
+    - description: Cluster to which this LinodeCluster belongs
       jsonPath: .metadata.labels.cluster\.x-k8s\.io/cluster-name
       name: Cluster
       type: string
-    - description: Cluster infrastructure is ready for DigitalOcean droplet instances
+    - description: Cluster infrastructure is ready for Linode droplet instances
       jsonPath: .status.ready
       name: Ready
       type: string
@@ -35,7 +35,7 @@ spec:
     name: v1alpha4
     schema:
       openAPIV3Schema:
-        description: DOCluster is the Schema for the DOClusters API.
+        description: LinodeCluster is the Schema for the LinodeClusters API.
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
@@ -46,7 +46,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: DOClusterSpec defines the desired state of DOCluster.
+            description: LinodeClusterSpec defines the desired state of LinodeCluster.
             properties:
               controlPlaneDNS:
                 description: ControlPlaneDNS is a managed DNS name that points to the load-balancer IP used for the ControlPlaneEndpoint.
@@ -128,28 +128,28 @@ spec:
                     type: object
                 type: object
               region:
-                description: The DigitalOcean Region the cluster lives in. It must be one of available region on DigitalOcean. See https://developers.digitalocean.com/documentation/v2/#list-all-regions
+                description: The Linode Region the cluster lives in. It must be one of available region on Linode. See https://developers.linode.com/documentation/v2/#list-all-regions
                 type: string
             required:
             - region
             type: object
           status:
-            description: DOClusterStatus defines the observed state of DOCluster.
+            description: LinodeClusterStatus defines the observed state of LinodeCluster.
             properties:
               controlPlaneDNSRecordReady:
                 description: ControlPlaneDNSRecordReady denotes that the DNS record is ready and propagated to the DO DNS servers.
                 type: boolean
               network:
-                description: Network encapsulates all things related to DigitalOcean network.
+                description: Network encapsulates all things related to Linode network.
                 properties:
                   apiServerLoadbalancersRef:
                     description: APIServerLoadbalancersRef is the id of apiserver loadbalancers.
                     properties:
                       resourceId:
-                        description: ID of DigitalOcean resource
+                        description: ID of Linode resource
                         type: string
                       resourceStatus:
-                        description: Status of DigitalOcean resource
+                        description: Status of Linode resource
                         type: string
                     type: object
                 type: object
