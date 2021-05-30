@@ -34,7 +34,7 @@ import (
 	"github.com/onsi/ginkgo/reporters"
 	. "github.com/onsi/gomega"
 
-	"sigs.k8s.io/cluster-api-provider-digitalocean/api/v1alpha3"
+	"sigs.k8s.io/cluster-api-provider-digitalocean/api/v1alpha4"
 
 	"k8s.io/apimachinery/pkg/runtime"
 
@@ -162,7 +162,7 @@ var _ = SynchronizedAfterSuite(func() {
 func initScheme() *runtime.Scheme {
 	sc := runtime.NewScheme()
 	framework.TryAddDefaultSchemes(sc)
-	_ = v1alpha3.AddToScheme(sc)
+	_ = v1alpha4.AddToScheme(sc)
 
 	return sc
 }
