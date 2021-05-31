@@ -4,7 +4,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.5.0
+    controller-gen.kubebuilder.io/version: v0.6.0-beta.0
   creationTimestamp: null
   name: linodemachinetemplates.infrastructure.cluster.x-k8s.io
 spec:
@@ -21,13 +21,18 @@ spec:
   - name: v1alpha4
     schema:
       openAPIV3Schema:
-        description: LinodeMachineTemplate is the Schema for the linodemachinetemplates API.
+        description: LinodeMachineTemplate is the Schema for the linodemachinetemplates
+          API.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
@@ -35,33 +40,45 @@ spec:
             description: LinodeMachineTemplateSpec defines the desired state of LinodeMachineTemplate.
             properties:
               template:
-                description: LinodeMachineTemplateResource describes the data needed to create am LinodeMachine from a template.
+                description: LinodeMachineTemplateResource describes the data needed
+                  to create am LinodeMachine from a template.
                 properties:
                   spec:
-                    description: Spec is the specification of the desired behavior of the machine.
+                    description: Spec is the specification of the desired behavior
+                      of the machine.
                     properties:
                       additionalTags:
-                        description: AdditionalTags is an optional set of tags to add to Linode resources managed by the Linode provider.
+                        description: AdditionalTags is an optional set of tags to
+                          add to Linode resources managed by the Linode provider.
                         items:
                           type: string
                         type: array
                       dataDisks:
-                        description: DataDisks specifies the parameters that are used to add one or more data disks to the machine
+                        description: DataDisks specifies the parameters that are used
+                          to add one or more data disks to the machine
                         items:
-                          description: DataDisk specifies the parameters that are used to add a data disk to the machine.
+                          description: DataDisk specifies the parameters that are
+                            used to add a data disk to the machine.
                           properties:
                             diskSizeGB:
-                              description: DiskSizeGB is the size in GB to assign to the data disk.
+                              description: DiskSizeGB is the size in GB to assign
+                                to the data disk.
                               format: int64
                               type: integer
                             filesystemLabel:
-                              description: 'FilesystemLabel is the label that is applied to the created filesystem. Character limits apply: 16 for ext4; 12 for xfs. May only be used in conjunction with filesystemType.'
+                              description: 'FilesystemLabel is the label that is applied
+                                to the created filesystem. Character limits apply:
+                                16 for ext4; 12 for xfs. May only be used in conjunction
+                                with filesystemType.'
                               type: string
                             filesystemType:
-                              description: FilesystemType to be used on the volume. When provided the volume will be automatically formatted.
+                              description: FilesystemType to be used on the volume.
+                                When provided the volume will be automatically formatted.
                               type: string
                             nameSuffix:
-                              description: NameSuffix is the suffix to be appended to the machine name to generate the disk name. Each disk name will be in format <dropletName>-<nameSuffix>.
+                              description: NameSuffix is the suffix to be appended
+                                to the machine name to generate the disk name. Each
+                                disk name will be in format <dropletName>-<nameSuffix>.
                               type: string
                           required:
                           - diskSizeGB
@@ -75,13 +92,17 @@ spec:
                         description: Droplet image can be image id or slug. See https://developers.linode.com/documentation/v2/#list-all-images
                         x-kubernetes-int-or-string: true
                       providerID:
-                        description: ProviderID is the unique identifier as specified by the cloud provider.
+                        description: ProviderID is the unique identifier as specified
+                          by the cloud provider.
                         type: string
                       size:
-                        description: Droplet size. It must be known Linode droplet size. See https://developers.linode.com/documentation/v2/#list-all-sizes
+                        description: Droplet size. It must be known Linode droplet
+                          size. See https://developers.linode.com/documentation/v2/#list-all-sizes
                         type: string
                       sshKeys:
-                        description: SSHKeys is the ssh key id or fingerprint to attach in Linode droplet. It must be available on Linode account. See https://developers.linode.com/documentation/v2/#list-all-keys
+                        description: SSHKeys is the ssh key id or fingerprint to attach
+                          in Linode droplet. It must be available on Linode account.
+                          See https://developers.linode.com/documentation/v2/#list-all-keys
                         items:
                           anyOf:
                           - type: integer
